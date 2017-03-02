@@ -13,7 +13,10 @@ pooltemp=[]
 salelist=[]
 salelist2=[]
 tr=20 #线程数
-
+'''
+程序爬取路径：遍历CSV中地址,并在其中搜索SALE页面 ->在SALE页面中搜索SALE页面 ->搜索LC码
+程序采用多线程+队列结构，确保爬取完整性。
+'''
 def findsale(url):
     x=0
     for j in range(10):
@@ -41,11 +44,10 @@ def findlc(salepage):
             for every_lott3 in lottery3:
                 lc_dict[every_lott3]=salepage
             lottery4=re.findall('lottNum="(.*?)"',html,re.S)
-            for every_lott4 in lottery3:
+            for every_lott4 in lottery4:
                 lc_dict[every_lott4]=salepage  
             break
         except Exception as err:
-            print err
             time.sleep(1)
 def loadCSVfile(file):
     csv_reader = csv.reader(open(file))
@@ -54,6 +56,7 @@ def build_sitepool():
     print '开始建立地址库'
     try:
         '''
+        1,2 CSV文件含有13万店铺地址信息，如有特殊需要请联系作者付费
         rows=loadCSVfile('1.csv')
         for each in rows:
             pooltemp.append(each[0])
@@ -102,7 +105,8 @@ def codefinding():
         site=salelist2[0]
         del salelist2[0]
         findlc(site)
-        
+
+    
 if __name__ == "__main__":  
     build_sitepool()
     startpool()
