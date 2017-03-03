@@ -105,9 +105,57 @@ def codefinding():
         site=salelist2[0]
         del salelist2[0]
         findlc(site)
-
-    
-if __name__ == "__main__":  
+def read_dict(dictfile):
+    a2=open(dictfile,'rb')    
+    c2={}
+    c2=a2.read()
+    c2=dict(eval(c2))
+    for k,value in c2.items():
+        if k!='':
+            print k
+            print value
+            headers={'Referer':'http://sale.jd.com/act/'+value+'.html'}
+            getinfo=requests.get('http://ls.activity.jd.com/lotteryApi/getLotteryInfo.action?lotteryCode='+k,headers=headers,verify=False).text
+            endtime=re.findall('"endTime":"(.*?)"',getinfo,re.S)[0]
+            details=requests.get('http://sale.jd.com/act/'+value+'.html',verify=False).text
+            title=re.findall('<meta content="(.*?)name="description"',details,re.S)[0]
+            pricetype=re.findall('"prizeType":(.*?),"',getinfo,re.S)[0]
+            yushou=re.search('yushou',details)
+            prize=re.findall('"prizeName":"(.*?)"',getinfo,re.S)
+            begintime=re.findall('"beginTime":"(.*?)"',getinfo,re.S)[0]
+            prizedesc=re.findall('"prizeDesc":"(.*?)"',getinfo,re.S)
+            print ' '
+            print 'title:',
+            print title
+            print 'Pricetype:',
+            print pricetype
+            if yushou:
+                print '********************该抽奖可能需要预约********************'
+            print 'code:',
+            print k
+            print 'URL:',
+            print 'http://sale.jd.com/act/'+value+'.html'
+            print 'Prize:',
+            for eachprize in prize:
+                if eachprize:
+                    eachprize=eachprize.encode('gbk')
+                    print '[',
+                    print eachprize,
+                    print ']',
+                    print ' ',
+            print ''
+            print 'Time:',
+            print begintime,
+            print '-',
+            print endtime
+            print 'PrizeDesc:'
+            
+            for eachprizedesc in prizedesc:
+                print '[',
+                print eachprizedesc,
+                print ']'
+            
+def spider(filez):
     build_sitepool()
     startpool()
     while len(pooltemp)>0:
@@ -127,3 +175,21 @@ if __name__ == "__main__":
         print len(salelist2)
         time.sleep(3)
     print lc_dict
+    s = str(lc_dict)
+    f = file(filez,'w')
+    f.writelines(s)
+    f.close()
+def testwater(lotterycode):
+    headers={'referer':u'http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode}
+    count=0
+    getwater=requests.get('http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode,headers=headers,verify=False).text  
+    lastwater=re.findall('{"prizeName":(.*?)}',getwater,re.S)
+    for eachwater in lastwater:
+        prizename=re.findall('"(.*?)","userPin',eachwater,re.S)[0]
+        windate=re.findall('"winDate":"(.*?)"',eachwater,re.S)[0]
+        print windate,
+        print prizename
+if __name__ == "__main__":
+    spider('code.txt') #运行爬虫程序，并将结果存入文件 code.txt
+    #read_dict('code.txt') #输出抽奖代码具体内容
+    #testwater('d2d7f4a5-adb7-41c5-96ce-ba923ea88eba') #输出某代码最近的出奖时间
