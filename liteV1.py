@@ -80,10 +80,14 @@ def runpool():
     while(len(pooltemp)>0):
         site=pooltemp[0]
         del pooltemp[0]
-        salepage=findsale(site)
-        for each in salepage:
-            each=each.lower()
-            salelist.append(each)
+        try:
+            salepage=findsale(site)
+            for each in salepage:
+                
+                each=each.lower()
+                salelist.append(each)
+        except:
+            pass
 def startpool2():    
     for x in range(0,tr):
         threading.Thread(target = runpool2,).start()
@@ -93,10 +97,13 @@ def runpool2():
         site=salelist[0]
         del salelist[0]
         salelist2.append(site)
-        salepage=findsale('http://sale.jd.com/act/'+str(site)+'.html')
-        for each in salepage:
-            each=each.lower()
-            salelist2.append(each)        
+        try:
+            salepage=findsale('http://sale.jd.com/act/'+str(site)+'.html')
+            for each in salepage:
+                each=each.lower()
+                salelist2.append(each)
+        except:
+            pass
 def jdcf():
     for x in range(0,tr):
         threading.Thread(target = codefinding,).start()
@@ -156,6 +163,8 @@ def read_dict(dictfile):
                 print ']'
             
 def spider(filez):
+    global salelist
+    global salelist2
     build_sitepool()
     startpool()
     while len(pooltemp)>0:
@@ -191,5 +200,5 @@ def testwater(lotterycode):
         print prizename
 if __name__ == "__main__":
     spider('code.txt') #运行爬虫程序，并将结果存入文件 code.txt
-    #read_dict('code.txt') #输出抽奖代码具体内容
-    #testwater('d2d7f4a5-adb7-41c5-96ce-ba923ea88eba') #输出某代码最近的出奖时间
+    read_dict('code.txt') #输出抽奖代码具体内容
+    testwater('d2d7f4a5-adb7-41c5-96ce-ba923ea88eba') #输出某代码最近的出奖时间
