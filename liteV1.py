@@ -188,7 +188,9 @@ def spider(filez):
     f = file(filez,'w')
     f.writelines(s)
     f.close()
+    return lc_dict
 def testwater(lotterycode):
+    waterlist=[]
     headers={'referer':u'http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode}
     count=0
     getwater=requests.get('http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode,headers=headers,verify=False).text  
@@ -198,7 +200,9 @@ def testwater(lotterycode):
         windate=re.findall('"winDate":"(.*?)"',eachwater,re.S)[0]
         print windate,
         print prizename
+        waterlist.append([windate,prizename])
+    return waterlist
 if __name__ == "__main__":
-    spider('code.txt') #运行爬虫程序，并将结果存入文件 code.txt
-    read_dict('code.txt') #输出抽奖代码具体内容
-    testwater('d2d7f4a5-adb7-41c5-96ce-ba923ea88eba') #输出某代码最近的出奖时间
+    #spider('code.txt') #运行爬虫程序，并将结果存入文件 code.txt
+    #read_dict('code.txt') #输出抽奖代码具体内容
+    print testwater('d2d7f4a5-adb7-41c5-96ce-ba923ea88eba') #输出某代码最近的出奖时间,返回一个list，结构为[[Windate,Prizename],[Windate,Prizename],..,]
