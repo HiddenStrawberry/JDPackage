@@ -34,7 +34,8 @@ def login(userid):
     writer = csv.writer(csvfile)
     writer.writerows(data)
     csvfile.close()
-login('1')
+if __name__ == "__main__":
+    login('1')
 '''
 
     login(userid)
