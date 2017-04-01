@@ -3,20 +3,17 @@
 cookies.py
 --------
 
- - Õâ¸öÎÄ¼þÓÃÀ´¹ÜÀí¾©¶«ÕËºÅÐÅÏ¢¡£
-   ÄúÒ²¿ÉÒÔ×ÔÐÐÐÂ½¨CSV£¬ÒÔÃ¿ÐÐ£¨A,B£©ÒÔÕËºÅ£¬cookiesÎª¸ñÊ½´æ´¢Îªcookies.csv£¬ËùÓÐ¾©¶«¹¤¾ß°üµÄÕËºÅcookiesÎÄ¼þ½ÔÒÔ´Ë·½Ê½µ¼Èë¡£
+ - è¿™ä¸ªæ–‡ä»¶ç”¨æ¥ç®¡ç†äº¬ä¸œè´¦å·ä¿¡æ¯ã€‚
+  
 
 
 ----------
 
 
-    login(userid)
-    
-
+ Â  Â login(userid,username,passwd) #Useridï¼Œäº¬ä¸œç”¨æˆ·åï¼Œå¯†ç 
  
 
-> userid¿ÉÒÔÊÇÖØ¸´µÄ£¬Èç¹ûÄúÔÚÁ½¸öÕËºÅÂ¼ÈëÁËÏàÍ¬µÄuserid£¬ÄÇÃ´ÔÚÖ´ÐÐ³é½±£¬Áì¾íÊ±ÕâÐ©ÏàÍ¬µÄID»áÍ¬Ê±Ö´ÐÐ³é½±£¬Áì¾í¡£useridÊÇ¹¤¾ß°ü¶ÔÕËºÅµÄÎ¨Ò»±êÊ¶¡£
-> Ö´ÐÐ´Ëº¯Êýºó£¬Python»áÆô¶¯Firefox£¬µ¯³ö¾©¶«µÇÂ¼´°¿Ú£¬ÊäÈëÕËºÅÃÜÂëµÇÂ½ºó£¬ÇëµÈ´ýFirefox×ÔÐÐ¹Ø±Õ¡£
-
-ÕËºÅ¶àÇÒÓÐPython»ù´¡µÄÓÃ»§¿ÉÒÔÊ¹ÓÃÈÕºóÍÆ³öµÄÍêÕû°æ£¨È«×Ô¶¯´òÂëµÇÂ¼£©
+> useridå¯ä»¥æ˜¯é‡å¤çš„ï¼Œå¦‚æžœæ‚¨åœ¨ä¸¤ä¸ªè´¦å·å½•å…¥äº†ç›¸åŒçš„useridï¼Œé‚£ä¹ˆåœ¨æ‰§è¡ŒæŠ½å¥–ï¼Œé¢†å·æ—¶è¿™äº›ç›¸åŒçš„IDä¼šåŒæ—¶æ‰§è¡ŒæŠ½å¥–ï¼Œé¢†å·ã€‚useridæ˜¯å·¥å…·åŒ…å¯¹è´¦å·çš„å”¯ä¸€æ ‡è¯†ã€‚
+> æ‰§è¡Œæ­¤å‡½æ•°åŽï¼ŒPythonä¼šå¯åŠ¨PhantomJSï¼Œå¦‚æœ‰éªŒè¯ç è¯·åœ¨æ–°å¼¹å‡ºçš„çª—å£ä¸­è¾“å…¥éªŒè¯ç å¹¶ç‚¹å‡»ç¡®å®šã€‚
+è´¦å·å¤šä¸”æœ‰PythonåŸºç¡€çš„ç”¨æˆ·å¯ä»¥ä½¿ç”¨æ—¥åŽæŽ¨å‡ºçš„å®Œæ•´ç‰ˆï¼ˆå…¨è‡ªåŠ¨æ‰“ç ç™»å½•ï¼‰
 
