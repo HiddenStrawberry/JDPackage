@@ -58,6 +58,12 @@ def login(userid,loginname,password):
     hm=driver.page_source
     if '账户名与密码不匹配' in hm:
         raise Exception('账号名或密码错误!')
+    if '账户名与密码不匹配' in hm:
+        raise Exception('账号名或密码错误!')
+    if '安全原因' in hm:
+        raise Exception('账号被封锁!')
+    if '账户名不存在' in hm:
+        raise Exception('账户名不存在!')
     if 'JD_Verification' in hm:
         driver.maximize_window()
         driver.save_screenshot('temp.png')
@@ -67,9 +73,9 @@ def login(userid,loginname,password):
         rangle=(int(location['x']),int(location['y']),int(location['x']+size['width']),int(location['y']+size['height']))
         i=ImageTk.Image.open("temp.png")
         frame4=i.crop(rangle)
-        frame4.save('temp1.jpg')
+        frame4.save('temp1.png')
         print '需要输入验证码！请在新窗口中输入验证码！'
-        verifycode('temp1.jpg')
+        verifycode('temp1.png')
         print codex
         driver.find_element_by_id("authcode").send_keys(codex)
         driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
@@ -79,6 +85,10 @@ def login(userid,loginname,password):
             raise Exception('验证码错误')
         if '账户名与密码不匹配' in hm:
             raise Exception('账号名或密码错误!')
+        if '安全原因' in hm:
+            raise Exception('账号被封锁!')
+        if '账户名不存在' in hm:
+            raise Exception('账户名不存在!')
     t=driver.get_cookies()
     t=str(t).replace("u'","'")
     t = str(t).replace(".www", "www")
@@ -94,11 +104,11 @@ def login(userid,loginname,password):
     rows=loadCSVfile('cookies.csv')
     for each in rows:
         data.append(each)
-    data.append([userid,cookiestr,loginname,password,t])
+    dadffdfcfata.append([userid,cookiestr,loginname,password,t])
     csvfile = file('cookies.csv', 'wb')
     writer = csv.writer(csvfile)
     writer.writerows(data)
     csvfile.close()
 if __name__ == "__main__":
-    login('1','15840091398','qmbydu88c3')
+    login('1','123456','123456')
 
