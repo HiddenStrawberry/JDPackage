@@ -5,7 +5,7 @@ except:
 try:
 	import selenium
 except:
-	raise Exception("selenium 47.0 needed!\n")
+	raise Exception("selenium needed!\n")
 
 from spider import *
 from cookies import *
