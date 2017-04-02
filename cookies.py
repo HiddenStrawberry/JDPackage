@@ -6,7 +6,8 @@ from selenium.webdriver.common.keys import Keys
 import sys
 import csv
 from Tkinter import *
-from ImageTk import *
+from PIL import ImageTk
+
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 dcap = dict(DesiredCapabilities.PHANTOMJS)
@@ -25,7 +26,7 @@ def verifycode(filename):
     global top
     global code
     top = Tk()
-    img = PhotoImage(file=filename)
+    img = ImageTk.PhotoImage(file=filename)
     label = Label(top, image=img)
     label.pack()
     l1 = Label(top, text="请输入验证码：")
@@ -64,7 +65,7 @@ def login(userid,loginname,password):
         location = imgelement.location
         size=imgelement.size
         rangle=(int(location['x']),int(location['y']),int(location['x']+size['width']),int(location['y']+size['height']))
-        i=Image.open("temp.png")
+        i=ImageTk.Image.open("temp.png")
         frame4=i.crop(rangle)
         frame4.save('temp1.jpg')
         print '需要输入验证码！请在新窗口中输入验证码！'
@@ -99,5 +100,5 @@ def login(userid,loginname,password):
     writer.writerows(data)
     csvfile.close()
 if __name__ == "__main__":
-    login('1','123456','123456')
+    login('1','15840091398','qmbydu88c3')
 
