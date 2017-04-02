@@ -7,7 +7,7 @@ import sys
 import csv
 from Tkinter import *
 from PIL import ImageTk
-
+#1
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 dcap = dict(DesiredCapabilities.PHANTOMJS)
