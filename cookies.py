@@ -26,8 +26,7 @@ def verifycode(filename):
     global top
     global code
     top = Tk()
-    img = ImageTk.PhotoImage(file=filename)
-    label = Label(top, image=img)
+    label = Label(top, image=ImageTk.PhotoImage(file=filename))
     label.pack()
     l1 = Label(top, text="请输入验证码：")
     l1.pack()
@@ -44,6 +43,15 @@ def a():
     global code
     codex=code.get()
     top.destroy()
+def errCheck(html):
+    if '账户名与密码不匹配' in html:
+        raise Exception('账号名或密码错误!')
+    if '账户名与密码不匹配' in html:
+        raise Exception('账号名或密码错误!')
+    if '安全原因' in html:
+        raise Exception('账号被封锁!')
+    if '账户名不存在' in html:
+        raise Exception('账户名不存在!')
 def login(userid,loginname,password):
     global codex
     data=[]
@@ -56,14 +64,7 @@ def login(userid,loginname,password):
     driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
     time.sleep(2)
     hm=driver.page_source
-    if '账户名与密码不匹配' in hm:
-        raise Exception('账号名或密码错误!')
-    if '账户名与密码不匹配' in hm:
-        raise Exception('账号名或密码错误!')
-    if '安全原因' in hm:
-        raise Exception('账号被封锁!')
-    if '账户名不存在' in hm:
-        raise Exception('账户名不存在!')
+    errCheck(hm)
     if 'JD_Verification' in hm:
         driver.maximize_window()
         driver.save_screenshot('temp.png')
@@ -71,8 +72,7 @@ def login(userid,loginname,password):
         location = imgelement.location
         size=imgelement.size
         rangle=(int(location['x']),int(location['y']),int(location['x']+size['width']),int(location['y']+size['height']))
-        i=ImageTk.Image.open("temp.png")
-        frame4=i.crop(rangle)
+        frame4=ImageTk.Image.open("temp.png").crop(rangle)
         frame4.save('temp1.png')
         print '需要输入验证码！请在新窗口中输入验证码！'
         verifycode('temp1.png')
@@ -81,14 +81,7 @@ def login(userid,loginname,password):
         driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
         time.sleep(2)
         hm = driver.page_source
-        if '验证码不正确' in hm:
-            raise Exception('验证码错误')
-        if '账户名与密码不匹配' in hm:
-            raise Exception('账号名或密码错误!')
-        if '安全原因' in hm:
-            raise Exception('账号被封锁!')
-        if '账户名不存在' in hm:
-            raise Exception('账户名不存在!')
+        errCheck(hm)
     t=driver.get_cookies()
     t=str(t).replace("u'","'")
     t = str(t).replace(".www", "www")
@@ -96,15 +89,13 @@ def login(userid,loginname,password):
     enable=0
     while enable==0:
         if "京东(JD.COM)" in driver.title:
-            cookie = [item["name"] + "=" + item["value"] for item in driver.get_cookies()]
-            cookiestr = ';'.join(item for item in cookie)
+            cookiestr = ';'.join(item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
             driver.quit()
             enable=1
             print '登陆成功！'
-    rows=loadCSVfile('cookies.csv')
-    for each in rows:
+    for each in loadCSVfile('cookies.csv'):
         data.append(each)
-    dadffdfcfata.append([userid,cookiestr,loginname,password,t])
+    data.append([userid,cookiestr,loginname,password,t])
     csvfile = file('cookies.csv', 'wb')
     writer = csv.writer(csvfile)
     writer.writerows(data)

@@ -6,6 +6,7 @@ import requests
 import warnings
 import copy
 from datacontrol import *
+from random import choice
 warnings.filterwarnings("ignore")
 
 class Spider:
@@ -55,9 +56,7 @@ class Spider:
         spset=[]
         for times in range(self._retry_times):
             try:
-                html = requests.get(url, headers=self._headers).text
-                salepage = re.findall('sale.jd.com/act/(.*?)' + '.html', html, re.S)
-                for each in salepage:
+                for each in re.findall('sale.jd.com/act/(.*?)' + '.html', requests.get(url, headers=self._headers).text, re.S):
                     spset.append('http://sale.jd.com/act/'+each+'.html')
                 return spset
             except Exception as err:
@@ -68,9 +67,8 @@ class Spider:
         result=[]
         for times in range(self._retry_times):
             try:
-                html = requests.get(salepage, headers=self._headers).text
                 for each in self._algo:
-                    for each2 in re.findall(each, html, re.S):
+                    for each2 in re.findall(each, requests.get(salepage, headers=self._headers).text, re.S):
                         self.lc_dict[each2] = salepage
                 return result
             except Exception as err:
@@ -78,11 +76,10 @@ class Spider:
 
     def runpool( self, pool, to_pool):
         while (len(pool) > 0):
-            site = pool[0]
-            del pool[0]
+            site = choice(pool)
+            pool.remove(site)
             try:
-                salepage = self.findsale(site)
-                for each in salepage:
+                for each in self.findsale(site):
                     each = each.lower()
                     to_pool.append(each)
             except Exception as err:
@@ -99,26 +96,22 @@ class Spider:
 
     def codefinding(self,pool):
         while len(pool) > 0:
-            site = pool[0]
-            del pool[0]
+            site = choice(pool)
+            pool.remove(site)
             self.findlc(site)
 
 if __name__ == "__main__":
-    t=Spider(20) #新建一个JDLottery爬虫，线程数为20
-
+    t=Spider(20) #新建一个JDLottery爬虫，线程数为20，线程数的加大到一定程度内显著会加快速度，过大的线程数反而会减慢速度。
     # -- 加载地址到爬虫中 --
-    rows = loadCSVfile('3.csv')
-    for each in rows:
+    for each in loadCSVfile('3.csv'):
         t._pool.append(each[0])
 
     '''
     1.csv包含14万京东店铺地址，如有需要请联系作者QQ付费使用。15RMB/1 File
-    rows = loadCSVfile('1.csv')
-    for each in rows:
+    for each in loadCSVfile('1.csv'):
         t._pool.append(each[0])
     '''
     # -- 加载完毕 --
-
     t.Strawberry('code.txt') #使用作者所写的爬取方法进行爬取
 
 #print t.findsale("http://www.jd.com")

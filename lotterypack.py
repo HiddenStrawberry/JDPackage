@@ -3,10 +3,11 @@ import requests
 import time
 import re
 import sys
+import csv
 import datetime
 import threading
 from datacontrol import loadCSVfile
-
+from selenium import webdriver
 stdi, stdo, stde = sys.stdin, sys.stdout, sys.stderr
 reload(sys)
 sys.setdefaultencoding('utf-8', )
@@ -24,8 +25,7 @@ def lottery_time(userid, code, timet, delay, cookielist, proxylist=[]):
     if proxylist != []:
         ps = 1  # 代理模式开启
         for each in proxylist:
-            address = 'http://' + str(each[0]) + ':' + str(each[1])
-            proxies.append({'http': address})
+            proxies.append({'http': 'http://' + str(each[0]) + ':' + str(each[1])})
     time1 = datetime.datetime.strptime(timet, '%Y-%m-%d %H:%M:%S')
     enabled = 1
     while enabled == 1:
@@ -43,11 +43,9 @@ def lottery_time(userid, code, timet, delay, cookielist, proxylist=[]):
                                 'http://l.activity.jd.com/lottery/lottery_start.action?lotteryCode=' + code,
                                 headers=headers, proxies=proxies[0], verify=False).text
                             if '登录' in goprince:
-                                print 'ID为'+userid+'的Cookies过期！'
-                                print each
+                                print 'ID为'+userid+'的Cookies过期！',each
                                 ck=0
                             status = 1
-
                         except:
                             print "Network Error!Change Proxy and Retrying……"
                             del proxies[0]
@@ -55,8 +53,7 @@ def lottery_time(userid, code, timet, delay, cookielist, proxylist=[]):
                     goprince = requests.get('http://l.activity.jd.com/lottery/lottery_start.action?lotteryCode=' + code,
                                             headers=headers, verify=False).text
                     if '登录' in goprince:
-                        print 'ID为' + userid + '的Cookies过期！'
-                        print each
+                        print 'ID为' + userid + '的Cookies过期！',each
                         ck=0
                 winner = re.findall('"winner":(.*?)}', goprince, re.S)
                 if str(winner) == '[u\'true\']':
@@ -86,19 +83,15 @@ def add_lottery(userid, code, timet, delay, cookielist, proxylist=[]):
     time.sleep(0.1)
 
 def read_lotteryfile(dictfile):
-    a2 = open(dictfile, 'rb')
-    c2 = {}
-    c2 = a2.read()
-    c2 = dict(eval(c2))
-    for k, value in c2.items():
+    dc = dict(eval(open(dictfile, 'rb').read()))
+    for k, value in dc.items():
         if k != '':
-            print k
-            print value
-            headers = {'Referer': 'http://sale.jd.com/act/' + value + '.html'}
+            print k,value
+            headers = {'Referer': value}
             getinfo = requests.get('http://ls.activity.jd.com/lotteryApi/getLotteryInfo.action?lotteryCode=' + k,
                                    headers=headers, verify=False).text
             endtime = re.findall('"endTime":"(.*?)"', getinfo, re.S)[0]
-            details = requests.get('http://sale.jd.com/act/' + value + '.html', verify=False).text
+            details = requests.get(value, verify=False).text
             title = re.findall('<meta content="(.*?)name="description"', details, re.S)[0]
             pricetype = re.findall('"prizeType":(.*?),"', getinfo, re.S)[0]
             yushou = re.search('yushou', details)
@@ -106,47 +99,33 @@ def read_lotteryfile(dictfile):
             begintime = re.findall('"beginTime":"(.*?)"', getinfo, re.S)[0]
             prizedesc = re.findall('"prizeDesc":"(.*?)"', getinfo, re.S)
             print ' '
-            print 'title:',
-            print title
-            print 'Pricetype:',
-            print pricetype
+            print 'title:',title
+            print 'Pricetype:',pricetype
             if yushou:
                 print '********************该抽奖可能需要预约********************'
-            print 'code:',
-            print k
+            print 'code:',k
             print 'URL:',
-            print 'http://sale.jd.com/act/' + value + '.html'
+            print value
             print 'Prize:',
             for eachprize in prize:
                 if eachprize:
                     eachprize = eachprize.encode('gbk')
-                    print '[',
-                    print eachprize,
-                    print ']',
-                    print ' ',
+                    print '[',eachprize, ']',' ',
             print ''
-            print 'Time:',
-            print begintime,
-            print '-',
-            print endtime
+            print 'Time:',begintime,'-',endtime
             print 'PrizeDesc:'
-
             for eachprizedesc in prizedesc:
-                print '[',
-                print eachprizedesc,
-                print ']'
+                print '[',eachprizedesc,']'
 
 def testwater(lotterycode):
     waterlist=[]
     headers={'referer':u'http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode}
     count=0
     getwater=requests.get('http://ls.activity.jd.com/lotteryApi/getWinnerList.action?lotteryCode='+lotterycode,headers=headers,verify=False).text
-    lastwater=re.findall('{"prizeName":(.*?)}',getwater,re.S)
-    for eachwater in lastwater:
+    for eachwater in re.findall('{"prizeName":(.*?)}',getwater,re.S):
         prizename=re.findall('"(.*?)","userPin',eachwater,re.S)[0]
         windate=re.findall('"winDate":"(.*?)"',eachwater,re.S)[0]
-        print windate,
-        print prizename
+        print windate,prizename
         waterlist.append([windate,prizename])
     return waterlist
 
@@ -160,9 +139,8 @@ def get_iplist(filename,page,sort):
         a=driver.get('http://www.kuaidaili.com/free/'+str(sort)+'/'+str(r))
         tr=[]
         while tr==[]:
-            hm=driver.page_source
-            tr=re.findall('<tr>(.*?)</tr>',hm,re.S)
-        for each in tr:
+            tr=re.findall('<tr>(.*?)</tr>',driver.page_source,re.S)
+        for each in re.findall('<tr>(.*?)</tr>',driver.page_source,re.S):
             try:
                 ip=re.findall('<td data\-title="IP">(.*?)</td>',each,re.S)[0]
                 port=re.findall('<td data\-title="PORT">(.*?)</td>',each,re.S)[0]
@@ -170,12 +148,7 @@ def get_iplist(filename,page,sort):
                 loc=re.findall('<td data-title="'+'位置'.decode('utf8')+'">(.*?)</td>',each,re.S)[0]
                 speed=re.findall('<td data-title="'+'响应速度'.decode('utf8')+'">(.*?)</td>',each,re.S)[0]
                 last=re.findall('<td data-title="'+'最后验证时间'.decode('utf8')+'">(.*?)</td>',each,re.S)[0]
-                print ip,
-                print port,
-                print tp,
-                print loc,
-                print speed,
-                print last
+                print ip,port,tp,loc,speed,last
                 data.append((ip,port,tp,loc,speed,last))
             except Exception as err:
                 print err
@@ -185,14 +158,12 @@ def get_iplist(filename,page,sort):
     csvfile.close()
 
 def filter_iplist(filename,newfilename,timeout):
-    proxylist=loadCSVfile(filename)
     successlist=[]
-    for each in proxylist:
+    for each in loadCSVfile(filename):
         try:
-            address='http://'+str(each[0])+':'+str(each[1])
             proxies=[]
-            proxies.append({'http':address})
-            t=requests.get('http://www.jd.com',proxies=proxies[0],timeout=timeout,verify=False).text
+            proxies.append({'http':'http://'+str(each[0])+':'+str(each[1])})
+            requests.get('http://www.jd.com',proxies=proxies[0],timeout=timeout,verify=False)
             print 'Success', each[0] ,':', each[1]
             successlist.append((each[0],each[1],each[2],each[3],each[4],each[5]))
         except Exception as err:
@@ -203,6 +174,8 @@ def filter_iplist(filename,newfilename,timeout):
     csvfile.close()
 
 if __name__ == "__main__":
+    read_lotteryfile('code.txt')
+    '''
     get_iplist('ip.csv', 3, 'inha')  # 参数为（文件名，页数，代理类别）；代理类别包含4种(inha:国内高匿,intr:国内普通,outha:国外高匿,outtr:国外普通
     filter_iplist('ip.csv', 'new.csv', 2)  # 过滤出有效IP并存储为new.csv 参数为（文件名，过滤后的文件名，超时判定秒数）
 
@@ -210,3 +183,4 @@ if __name__ == "__main__":
     proxylist = loadCSVfile('new.csv')  # 加载代理地址文件
     add_lottery('1', '4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f', '2017-03-08 20:57:30', 5, cookielist, proxylist)  # 代理模式
     #add_lottery('1','4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f','2017-03-08 20:57:30',5,cookielist) #无代理模式
+    '''
