@@ -5,13 +5,14 @@ except:
 try:
 	import selenium
 except:
-	raise Exception("selenium 47.0 needed!\n")
+	raise Exception("selenium needed!\n")
 
 from spider import *
 from cookies import *
 from datacontrol import *
 from lotterypack import *
-
+from rk import *
+from coupon import *
 
 print "Jingdong Tool Package Module Loaded!"
 print "Author: HiddenStrawberry"
