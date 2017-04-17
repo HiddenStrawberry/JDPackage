@@ -1,6 +1,7 @@
 #encoding=utf-8
 from rk import *
 from cookies import *
+from coupon import *
 import random
 class Account:
     def __init__(self,username,pwd,rk_um,rk_pw):
