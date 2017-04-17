@@ -122,7 +122,7 @@ def get_ajd_list(url):
 
     return coupon_dict
 if __name__=='__main__':
-    #get_ajd_list('http://a.jd.com/')
+    get_ajd_list('http://a.jd.com/')
     t={}
     t[0] = Coupon('#', '#', '#', '#')
     t[0].login_pc()

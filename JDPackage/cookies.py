@@ -68,7 +68,7 @@ def login(userid,loginname,password):
         driver.save_screenshot('temp.png')
         imgelement = driver.find_element_by_xpath('//*[@id="JD_Verification1"]')
         location = imgelement.location
-        size=imgelement.size
+        size=imgelement.size()
         rangle=(int(location['x']),int(location['y']),int(location['x']+size['width']),int(location['y']+size['height']))
         frame4=ImageTk.Image.open("temp.png").crop(rangle)
         frame4.save('temp1.png')
