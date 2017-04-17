@@ -12,12 +12,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8',)
 sys.stdin,sys.stdout,sys.stderr=stdi,stdo,stde
 times=0
-def login_check(html):
-    if '图片验证码错误，请重试' in html:
-        return False
-    if '账号或密码不正确' in html:
-        raise Exception('账号或密码不正确')
-    return True
+
 class Coupon(Account):
     def __init__(self,username,pwd,rk_um,rk_pw):
         Account.__init__(self,username,pwd,rk_um,rk_pw)
