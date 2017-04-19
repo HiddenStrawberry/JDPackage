@@ -1,7 +1,7 @@
 #encoding=utf-8
 from rk import *
 from cookies import *
-
+import re
 import random
 def login_check(html):
     if '图片验证码错误，请重试' in html:
