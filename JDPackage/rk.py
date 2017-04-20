@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-# coding:utf-8
-
+#encoding=utf-8
 import requests
-from hashlib import md5
+import hashlib
 
 
 class RClient(object):
 
     def __init__(self, username, password):
         self.username = username
-        self.password = md5(password).hexdigest()
+        self.password = hashlib.md5(password.encode(encoding='utf-8')).hexdigest()
         self.soft_id = '78829'
         self.soft_key = '30dfb059ce40493ea95af20c778ada7c'
         self.base_params = {
@@ -48,10 +46,4 @@ class RClient(object):
         params.update(self.base_params)
         r = requests.post('http://api.ruokuai.com/reporterror.json', data=params, headers=self.headers)
         return r.json()
-
-
-if __name__ == '__main__':
-    rc = RClient('username', 'password')
-    im = open('a.jpg', 'rb').read()
-    print rc.rk_create(im, 3040)
 

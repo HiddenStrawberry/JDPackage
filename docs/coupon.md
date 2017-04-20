@@ -1,4 +1,4 @@
-京东优惠券工具包Coupon.py
+﻿京东优惠券工具包Coupon.py
 ===============
 
 
@@ -12,7 +12,7 @@
 
 ----------
 
- - 多线程优惠券领取工具（测试版）
+ - 多线程优惠券领取工具（领取模式1）
 ------------------
 使用须知（必看）
 > 1. 本工具仅供研究Python的各个模块使用，请勿用于非法用途！
@@ -31,42 +31,37 @@
 我个人建议通过反复尝试来确定最好的线程数，只要你的配置够好，就可以开更多的线程，加快领卷速度，从而使得领到卷的概率更大。
 单线程单账号领卷部署及登录，然后领卷：
 
-    t={}
-    t[0]=Coupon('1584000000','abc123','ruokuai123','ruokuai123') #部署
-    #              京东账号     京东密码    若快账号     若快密码
-    t[0].login() #登录
-    t[0].new_coupon('http://coupon.m.jd.com/coupons/show.action?key=0397063756c644a39e304fc216f1d5f9&roleId=5978821&to=pro.m.jd.com',
-    '2017-03-08 20:57:30','2017-03-08 21:01:30')
-    #支持输入手机或电脑端优惠券地址，格式为（优惠券地址，开始领卷时间，结束领卷时间，建议提前30秒左右就开始领卷！！）
+    #encoding=utf-8
+    from JDPackage import *
+    a = Coupon('#', '#', '#', '#')
+    #          京东账号     京东密码    若快账号     若快密码
+    a.login()
+    a.new_coupon(
+    	'https://coupon.jd.com/ilink/couponActiveFront/front_index.action?key=61ea1f3fa9804499948617652d256485&roleId=6063883&to=mall.jd.com/index-13001.html',
+    	'2017-03-08 20:57:30','2017-04-21 00:11:40')
 
-多线程单账号领卷部署及登录，然后领卷：（举例5线程领卷）
+多线程单账号领卷部署及登录，然后领卷：（举例10线程领卷）
 
-    t={}
-    for x in range(5):  #5个线程
-        t[x]=Coupon('1584000000','abc123','ruokuai123','ruokuai123') #部署
-         #          京东账号     京东密码    若快账号     若快密码
-        threading.Thread(target=t[x].login).start()#五个线程同时登陆，加快速度
-    for x in range(5):
-        t[x].new_coupon('http://coupon.m.jd.com/coupons/show.action?key=0397063756c644a39e304fc216f1d5f9&roleId=5978821&to=pro.m.jd.com',
-    '2017-03-08 20:57:30','2017-03-08 21:01:30')
-        #支持输入手机或电脑端优惠券地址，格式为（优惠券地址，开始领卷时间，结束领卷时间，建议提前30秒左右就开始领卷！如果需要提前测试，输入任何一个早于现在的时间即可！时间格式不可以改变，必须和例子格式相同！）
+   
+
+    #encoding=utf-8
+    from JDPackage import *
+    multi_coupon('#','#','#','#',10, #京东账号,京东密码,若快账号,若快密码,线程数
+                 '2017-03-08 20:57:30','2017-04-21 00:11:40', #开始时间,结束时间
+                 'https://coupon.jd.com/ilink/couponActiveFront/front_index.action?key=61ea1f3fa9804499948617652d256485&roleId=6063883&to=mall.jd.com/index-13001.html'
+                 ) #    卷地址
 
 多账号多线程领卷部署及登录，然后领卷：（举例5线程领卷）
 
-    t={}
-    t12345={}
-    for x in range(5):
-        t[x]=Coupon('1584000000','abc123','ruokuai123','ruokuai123')
-        threading.Thread(target=t[x].login).start()
-    for x in range(5):
-        t12345[x]=Coupon('1584000001','abc1234','ruokuai123','ruokuai123')
-        threading.Thread(target=t12345[x].login).start()
-    for x in range(5):
-        t[x].new_coupon('http://coupon.m.jd.com/coupons/show.action?key=0397063756c644a39e304fc216f1d5f9&roleId=5978821&to=pro.m.jd.com',
-    '2017-03-08 20:57:30','2017-03-08 21:01:30')
-        t12345[x].new_coupon('http://coupon.m.jd.com/coupons/show.action?key=0397063756c644a39e304fc216f1d5f9&roleId=5978821&to=pro.m.jd.com',
-    '2017-03-08 20:57:30','2017-03-08 21:01:30')
-
+    #encoding=utf-8
+    from JDPackage import *
+    multi_coupon('#','#','#','#',10, 
+                '2017-03-08 20:57:30','2017-04-21 00:11:40', 
+                'https://coupon.jd.com/ilink/couponActiveFront/front_index.action?key=61ea1f3fa9804499948617652d256485&roleId=6063883&to=mall.jd.com/index-13001.html')  #账号1
+                
+    multi_coupon('#','#','#','#',10, 
+                '2017-03-08 20:57:30','2017-04-21 00:11:40', 
+                'https://coupon.jd.com/ilink/couponActiveFront/front_index.action?key=61ea1f3fa9804499948617652d256485&roleId=6063883&to=mall.jd.com/index-13001.html')   #账号2
 
 ----------
 
@@ -99,3 +94,4 @@ out:
                    '2017-04-17 20:03:50')
 
 请注意这里的登录使用的是login_pc()函数。get_ajd_coupon()的参数为：领取地址，领取时间，请注意！这个领卷函数只会在设定时间领取一次！（因为a.jd.com不支持反复尝试领卷，会导致频繁）
+

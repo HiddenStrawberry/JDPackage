@@ -1,18 +1,54 @@
-#encoding=utf-8
+# encoding=utf-8
+from __future__ import print_function
+import platform
 import csv
+
+version = int(platform.python_version()[0])
+
+
 def loadCSVfile(file):
+    t = []
     try:
-        csv_reader = csv.reader(open(file))
+        csvfile = open(file, "r")
+        read = csv.reader(csvfile)
+        for each in read:
+            t.append(each)
+        return t
     except:
-        raise Exception('请确认Cookies.csv文件存在！如不存在请复制JDPackage中的Cookies.csv到程序文件目录中！')
-    return csv_reader
-def spider_file_csv(lc_dict,filename):
+        print('CSV Reader B')
+        csvfile = open(file, "r", encoding='utf-8')
+        read = csv.reader(csvfile)
+        return read
+
+
+def writeCSVfile(filename, data):
+    if version == 3:
+        with open(filename, "w", newline="") as datacsv:
+            csvwriter = csv.writer(datacsv, dialect="excel")
+            for each in data:
+                csvwriter.writerow(each)
+    if version == 2:
+        csvfile = file(filename, 'wb')
+        writer = csv.writer(csvfile)
+        for each in data:
+            writer.writerow(each)
+        csvfile.close()
+    print('Write to ' + str(filename) + ' Complete!')
+
+
+def decoder(string):
+    if version == 2:
+        return string.decode('utf8')
+    else:
+        return string
+
+
+def spider_file_csv(lc_dict, filename):
     try:
         s = str(lc_dict)
-        f = file(filename, 'w')
+        f = open(filename, 'w')
         f.writelines(s)
         f.close()
-        print 'Write to ' + str(filename) +' Complete!'
+        print('Write to ' + str(filename) + ' Complete!')
     except Exception as Err:
-        print Err
-
+        print(Err)
