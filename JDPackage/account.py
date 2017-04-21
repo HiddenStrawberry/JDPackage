@@ -117,7 +117,7 @@ class Account:
                 print(decoder('开始识别验证码'))
             except Exception as err:
                 print(err)
-                raise Exception("请确认您安装的Python版本为32位！")
+                raise Exception("请确认您安装了正确的Image包！")
             try:
                 codex = self.rc.rk_create(im, 3040)['Result']
                 print(decoder('识别成功！'), codex)
@@ -215,6 +215,75 @@ class Account:
             data.append([str(userid), self.ck_pc, self.username, self.pwd, self.ck_pc_browser])
             writeCSVfile('cookies.csv', data)
 
+    def browser(self, cookies=None):
+        try:
+            cookies = '{\'' + (cookies.replace('=', '\':\'')).replace(';', '\',\'') + '\'}'
+            cookies = eval(str(cookies))
+            driver = webdriver.PhantomJS()
+            driver.get('http://www.jd.com')
+            driver.delete_all_cookies()
+            time.sleep(5)
+            for k, value in cookies.items():
+                driver.add_cookie(
+                    {'domain': '.jd.com',
+                     'name': k,
+                     'value': value,
+                     'path': '/', 'expires': None})
+            driver.get('http://www.jd.com')
+        except:
+            print(decoder('载入Cookies出错！由于本功能尚处试验阶段，较不稳定，请重新运行！'))
+        return driver
+
+    def comment(self):
+        while True:
+            html = requests.get('https://club.jd.com/myJdcomments/myJdcomment.action',
+                                headers={'Cookie': self.ck_pc}, verify=False).text
+            if decoder('没有要评价的订单') in html:
+                raise Exception('没有要评价的订单')
+            tbody = re.findall('<tbody>(.*?)</tbody>', html, re.S)
+            print(decoder('浏览器加载中，请稍候……'))
+            driver = self.browser(cookies=self.ck_pc)
+            for each in tbody:
+                try:
+                    orderid = re.findall('orderid=(.*?)&', each, re.S)[0]
+                    print(orderid)
+                    itemid = re.findall('<div class="p-img">(.*?)</div>', each, re.S)
+                    for each_item in itemid:
+                        productId = re.findall('item.jd.com/(.*?)\.html', each_item, re.S)[0]
+                        _data = {'orderId': orderid,
+                                 'productId': productId,
+                                 'score': '5',
+                                 'tag': '%5B%5B%22732%22%2C%22%E4%BC%A0%E8%BE%93%E9%80%9F%E5%BA%A6%E5%BF%AB%22%5D%5D',
+                                 'saveStatus': '1',
+                                 'anonymousFlag': '1',
+                                 'content': '商品还不错！商品还不错！会推荐'}
+                        print(requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
+                                            data=_data,
+                                            headers={'Cookie': self.ck_pc,
+                                                     'Referer': 'https://club.jd.com/myJdcomments/orderVoucher.action'
+                                                                '?ruleid=' + orderid,
+                                                     'Accept': 'application/json, text/javascript, */*; q=0.01',
+                                                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) '
+                                                                   'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                                                   'Chrome/56.0.2924.87 Safari/537.36',
+                                                     'Accept-Language': 'zh-CN,zh;q=0.8',
+                                                     'Accept-Encoding': 'gzip, deflate, br',
+                                                     'X-Requested-With': 'XMLHttpRequest'},
+                                            verify=False).text)
+                    driver.get(
+                        'http://club.jd.com/myJdcomments/orderVoucher.action?ruleid=' + orderid + '&operation=survey')
+                    time.sleep(2)
+                    try:
+                        for x in range(1, 10):
+                            driver.find_element_by_xpath('//*[@id="activityVoucher"]/div[2]/div[1]/div[1]/div[' + str(
+                                x) + ']/span[2]/span[5]').click()
+                    except Exception as Err:
+                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div[2]/a').click()
+                        time.sleep(2)
+                        print(re.findall('<h3 class="tip-title">(.*?)</h3>', driver.page_source, re.S)[0])
+                except:pass
+            driver.quit()
+
 
 def set_cookies(c):
     c = str(c).replace("u'", "'")
@@ -259,6 +328,7 @@ def browser(cookies=None, cookie_dictionary=None):
             driver.get('http://www.jd.com')
     except:
         print(decoder('载入Cookies出错！由于本功能尚处试验阶段，较不稳定，请重新运行！请确定您已经安装了Firefox 47.0以下的版本！'))
+    return driver
 
 
 if __name__ == '__main__':

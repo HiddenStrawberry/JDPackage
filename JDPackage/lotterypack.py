@@ -82,7 +82,7 @@ def lottery_time(userid, code, timet, delay, proxylist=None):
             enabled = 0
             f = open('f.txt', 'a')
             for each in msglist:
-                f.write(str(each))
+                f.write(decoder(each))
                 f.write('\n')
             f.close()
             print('Finished!')
