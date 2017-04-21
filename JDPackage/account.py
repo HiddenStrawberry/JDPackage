@@ -256,10 +256,10 @@ class Account:
                         _data = {'orderId': orderid,
                                  'productId': productId,
                                  'score': '5',
-                                 'tag': '%5B%5B%22732%22%2C%22%E4%BC%A0%E8%BE%93%E9%80%9F%E5%BA%A6%E5%BF%AB%22%5D%5D',
+                                 'tag': '%5B%5B%2220078%22%2C%22%E8%BF%98%E4%B8%8D%E9%94%99%22%5D%5D',
                                  'saveStatus': '1',
                                  'anonymousFlag': '1',
-                                 'content': '商品还不错！商品还不错！会推荐'}
+                                 'content': '%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7'}
                         print(requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
                                             data=_data,
                                             headers={'Cookie': self.ck_pc,
