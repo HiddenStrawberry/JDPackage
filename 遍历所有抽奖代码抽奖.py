@@ -1,6 +1,8 @@
 # encoding=utf8
 from JDPackage import *
 import datetime
+print datetime.datetime.now()
+
 
 # lottery_login('#','#','#','#',1) #登录
 time = datetime.datetime.strptime('2017-03-08 20:57:30', '%Y-%m-%d %H:%M:%S') #设置初始时间

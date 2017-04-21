@@ -127,9 +127,12 @@ def multi_coupon(a, b, c, d, count, start, end, url):
     t = {}
     print(decoder('新建了一个线程为') + str(count) + decoder('的领卷任务'))
     for x in range(count):
-        t[x] = Coupon(a, b, c, d)
-        t[x].login()
-        t[x].new_coupon(url, start, end)
+        threading.Thread(target=new_coupon, args=(a, b, c, d, count, start, end, url,)).start()
+
+def new_coupon(a, b, c, d, count, start, end, url):
+    t = Coupon(a, b, c, d)
+    t.login()
+    t.new_coupon(url, start, end)
 
 
 if __name__ == '__main__':

@@ -73,8 +73,11 @@ class Account:
                     verify = True
 
                 while 1 == 1 and verify == True and enabled == 0:
-                    while decoder('专业网上购物平台品质保障') in re.findall('<title>(.*?)</title>', driver.page_source, re.S)[
-                        0] and enabled == 0:
+                    try:
+                        html=re.findall('<title>(.*?)</title>', driver.page_source, re.S)[0]
+                    except:
+                        html=''
+                    while decoder('专业网上购物平台品质保障') in html and enabled == 0:
                         # print '->请稍后……',
                         cookie = [item["name"] + "=" + item["value"] for item in driver.get_cookies()]
                         self.ck = ';'.join(item for item in cookie)
