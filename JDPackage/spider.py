@@ -20,11 +20,13 @@ class Spider:
                           'Chrome/47.0.2526.80 Safari/537.36 Core/1.47.163.400 QQBrowser/9.3.7175.400'}
         self._algo = ["lotterycode:'(.*?)'", 'lotterycode=(.*?)"', 'data-code="(.*?)', 'lottNum="(.*?)"']
         # Lotterycode的正则算法，可自行更新（若京东页面更新）
+        self.browser = requests.session()
         self._retry_times = 10
         self._pool = []
         self.salelist = []
         self.templist = []
         self.lc_dict = {}
+
 
     def Strawberry(self, filename):
         print(len(self._pool))
@@ -67,7 +69,7 @@ class Spider:
         for times in range(self._retry_times):
             try:
                 for each in re.findall('sale.jd.com/act/(.*?)' + '.html',
-                                       requests.get(url, headers=self._headers, timeout=2).text, re.S):
+                                       self.browser.get(url, headers=self._headers, timeout=2).text, re.S):
                     spset.append('http://sale.jd.com/act/' + each + '.html')
                 return spset
             except:
@@ -79,22 +81,22 @@ class Spider:
         for times in range(self._retry_times):
             try:
                 for each in self._algo:
-                    for each2 in re.findall(each, requests.get(salepage, headers=self._headers, timeout=2).text, re.S):
+                    for each2 in re.findall(each, self.browser.get(salepage, headers=self._headers, timeout=2).text,
+                                            re.S):
                         self.lc_dict[each2] = salepage
                 return result
-            except Exception as err:
+            except:
                 time.sleep(1)
 
     def runpool(self, pool, to_pool):
-        while (len(pool) > 0):
+        while len(pool) > 0:
             site = pool[0]
             pool.remove(site)
             try:
                 for each in self.findsale(site):
                     each = each.lower()
                     to_pool.append(each)
-            except Exception as err:
-                print(err)
+            except:
                 pass
 
     def startpool(self, pool, to_pool):

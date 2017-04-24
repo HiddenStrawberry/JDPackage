@@ -3,11 +3,9 @@ from __future__ import print_function
 from .rk import *
 from .datacontrol import *
 import time
-from PIL import ImageTk
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import re
-import random
 
 
 class Account:
@@ -22,124 +20,68 @@ class Account:
         self.session = requests.session()
 
     def login(self):
-        rdname = str(random.randint(1000000, 10000000))
         driver = webdriver.PhantomJS()
         url = "https://plogin.m.jd.com/user/login.action?appid=100&kpkey=&returnurl=http%3A%2F%2Fm.jd.com%3Findexloc" \
               "%3D1%26sid%3D9129920d9c239d7273eed31ddcc2a0ab "
         driver.get(url)
-        enabled = 0
-        while decoder('专业网上购物平台品质保障') not in driver.title and enabled == 0:
-            driver.find_element_by_id("username").send_keys(self.username)
-            driver.find_element_by_id("password").send_keys(self.pwd)
-            driver.maximize_window()
-            verify = False
-            while not verify:
-                try:
-                    driver.save_screenshot('C:\\temp\\' + rdname + '.jpg')
-                except:
-                    raise Exception("请确认C:\Temp目录存在！")
-                try:
-                    imgelement = driver.find_element_by_xpath('//*[@id="imgCode"]')
-                    location = imgelement.location
-                    size = imgelement.size
-                    rangle = (
-                        int(location['x']), int(location['y']),
-                        int(location['x'] + size['width']),
-                        int(location['y'] + size['height']))
-                    frame4 = ImageTk.Image.open('C:\\temp\\' + rdname + '.jpg').crop(rangle)
-                    frame4.save('C:\\temp\\' + rdname + '.png')
-                    im = open('C:\\temp\\' + rdname + '.png', 'rb').read()
-                    print(decoder('开始识别验证码'), end='')
-                except:
-                    raise Exception("请确认您安装了正确的Image包")
-                try:
-                    codex = self.rc.rk_create(im, 3040)['Result']
-                except Exception as err:
-                    print(err)
-                    raise Exception("若快验证码识别出错！")
-                print(codex)
-                print(decoder('->识别成功'), end='')
-                driver.find_element_by_id("code").send_keys(codex)
-                driver.find_element_by_xpath('//*[@id="loginBtn"]').send_keys(Keys.ENTER)
-                print(decoder('->登陆中……'), end='')
-                time.sleep(2)
-
-                if decoder('图片验证码错误，请重试') in driver.page_source:
-                    verify = False
-                elif decoder('账号或密码不正确') in driver.page_source:
+        try:
+            while decoder('京东登录') in driver.title:
+                print(decoder('尝试登录中……'))
+                driver.get(url)
+                driver.find_element_by_id("username").send_keys(self.username)
+                driver.find_element_by_id("password").send_keys(self.pwd)
+                while decoder('专业网上购物平台品质保障') not in driver.title:
+                    codex = rk_webdriver_verify(driver, self.rc, '//*[@id="imgCode"]')
+                    driver.find_element_by_xpath('//*[@id="code"]').send_keys(codex)
+                    print(codex)
+                    driver.find_element_by_xpath('//*[@id="loginBtn"]').send_keys(Keys.ENTER)
+                    time.sleep(5)
+                    if decoder('账号或密码不正确') in driver.page_source:
+                        driver.quit()
+                        raise Exception('账号或密码不正确')
+            while self.ck == '':
+                if decoder('专业网上购物平台品质保障') in driver.title:
+                    cookie = [item["name"] + "=" + item["value"] for item in driver.get_cookies()]
+                    self.ck = ';'.join(item for item in cookie)
+                    self.ck_browser = set_cookies(driver.get_cookies())
                     driver.quit()
-                    raise Exception('账号或密码不正确')
-                else:
-                    verify = True
-
-                while 1 == 1 and verify == True and enabled == 0:
-                    try:
-                        html=re.findall('<title>(.*?)</title>', driver.page_source, re.S)[0]
-                    except:
-                        html=''
-                    while decoder('专业网上购物平台品质保障') in html and enabled == 0:
-                        # print '->请稍后……',
-                        cookie = [item["name"] + "=" + item["value"] for item in driver.get_cookies()]
-                        self.ck = ';'.join(item for item in cookie)
-                        print(self.username, decoder('->M端登陆成功！'))
-                        enabled = 1
-                        self.ck_browser = set_cookies(driver.get_cookies())
-        driver.quit()
+                    print(self.username, decoder('M端登录成功'))
+        except:
+            self.login()
 
     def login_pc(self):
-        rand_name = str(random.randint(1000000, 10000000))
         driver = webdriver.PhantomJS()
-        url = 'https://passport.jd.com/uc/login?ltype=logout'
+        url = "https://passport.jd.com/uc/login?ltype=logout"
         driver.get(url)
-        print(decoder('开始登陆……'))
-        driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/div[2]/a').click()
-        driver.find_element_by_id("loginname").send_keys(self.username)
-        driver.find_element_by_id("nloginpwd").send_keys(self.pwd)
-        driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
-        time.sleep(5)
-        hm = driver.page_source
-        errmsg = ['账户名与密码不匹配', '账户名与密码不匹配', '安全原因', '账户名不存在']
-
-        for each in errmsg:
-            if decoder(each) in hm:
-                driver.quit()
-                raise Exception(each)
-
-        if 'JD_Verification' in hm:
-            driver.maximize_window()
-            driver.save_screenshot('C:\\temp\\' + rand_name + '.jpg')
-            try:
-                imgelement = driver.find_element_by_xpath('//*[@id="JD_Verification1"]')
-                location = imgelement.location
-                size = imgelement.size
-                rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
-                          int(location['y'] + size['height']))
-                frame4 = ImageTk.Image.open('C:\\temp\\' + rand_name + '.jpg').crop(rangle)
-                frame4.save('C:\\temp\\' + rand_name + '.png')
-                im = open('C:\\temp\\' + rand_name + '.png', 'rb').read()
-                print(decoder('开始识别验证码'))
-            except Exception as err:
-                print(err)
-                raise Exception("请确认您安装了正确的Image包！")
-            try:
-                codex = self.rc.rk_create(im, 3040)['Result']
-                print(decoder('识别成功！'), codex)
-            except Exception as err:
-                print(err)
-                raise Exception("若快验证码识别出错！")
-            driver.find_element_by_id("authcode").send_keys(codex)
-            driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
-            time.sleep(2)
-
-        enable = 0
-        while enable == 0:
-            if decoder("京东(JD.COM)") in driver.title:
-                self.ck_pc = ';'.join(
-                    item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
-                enable = 1
-                self.ck_pc_browser = set_cookies(driver.get_cookies())
-                driver.quit()
-                print(self.username, decoder('PC端登陆成功！'))
+        try:
+            while decoder('欢迎登录') in driver.title:
+                print(decoder('尝试登录中……'))
+                driver.get(url)
+                driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/div[2]/a').click()
+                driver.find_element_by_id("loginname").send_keys(self.username)
+                driver.find_element_by_id("nloginpwd").send_keys(self.pwd)
+                driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
+                time.sleep(5)
+                while decoder('京东(JD.COM)') not in driver.title:
+                    errmsg = ['账户名与密码不匹配', '账户名与密码不匹配', '安全原因', '账户名不存在']
+                    for each in errmsg:
+                        if decoder(each) in driver.page_source:
+                            driver.quit()
+                            raise Exception(each)
+                    if 'JD_Verification' in driver.page_source:
+                        codex = rk_webdriver_verify(driver, self.rc, '//*[@id="JD_Verification1"]')
+                        driver.find_element_by_id("authcode").send_keys(codex)
+                        driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
+                        time.sleep(5)
+            while self.ck_pc == '':
+                if decoder('京东(JD.COM)') in driver.title:
+                    self.ck_pc = ';'.join(
+                        item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
+                    self.ck_pc_browser = set_cookies(driver.get_cookies())
+                    driver.quit()
+                    print(self.username, decoder('PC端登陆成功'))
+        except:
+            self.login_pc()
 
     def get_payment(self):
         payment_list = []
@@ -214,7 +156,6 @@ class Account:
         else:
             for each in loadCSVfile('cookies.csv'):
                 data.append(each)
-
             data.append([str(userid), self.ck_pc, self.username, self.pwd, self.ck_pc_browser])
             writeCSVfile('cookies.csv', data)
 
@@ -284,7 +225,8 @@ class Account:
                         driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div[2]/a').click()
                         time.sleep(2)
                         print(re.findall('<h3 class="tip-title">(.*?)</h3>', driver.page_source, re.S)[0])
-                except:pass
+                except:
+                    pass
             driver.quit()
 
 

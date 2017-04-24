@@ -80,11 +80,12 @@ def lottery_time(userid, code, timet, delay, proxylist=None):
                 # ----------------------------
                 time.sleep(delay)
             enabled = 0
-            f = open('f.txt', 'a')
-            for each in msglist:
-                f.write(decoder(each))
-                f.write('\n')
-            f.close()
+            # Fix later
+            # f = open('f.txt', 'a')
+            # for each in msglist:
+            #     f.write(decoder(each))
+            #     f.write('\n')
+            # f.close()
             print('Finished!')
 
 
@@ -94,6 +95,31 @@ def add_lottery(userid, code, timet, delay, proxylist=None):
     threading.Thread(target=lottery_time, args=(userid, code, timet, delay, proxylist)).start()
     print(code)
     time.sleep(0.1)
+
+
+def yuyue(userid, url):
+    cookiedt=[]
+    try:
+        cookielist = loadCSVfile('cookies.csv')
+    except:
+        raise Exception('请确认Cookies文件存在!')
+    for each in cookielist:
+        try:
+            if str(each[0]) == str(userid):
+                cookiedt.append(each[1])
+        except:
+            pass
+    for each in cookiedt:
+        headers = {'Cookie': each,'Referer':url}
+        html = requests.get(url,headers=headers,verify=False).text
+        result = ''
+        try:
+            result = re.findall('<p class="bd-right-result">(.*?)</p>', html, re.S)[0]
+            result=result.replace('<i>','').replace('</i>','')
+        except Exception as err:
+            print (err)
+            pass
+        print(result)
 
 
 def read_lotteryfile(dictfile):

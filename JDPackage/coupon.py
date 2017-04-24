@@ -3,7 +3,6 @@ from __future__ import print_function
 from .account import *
 import datetime
 import random
-import os
 import threading
 import warnings
 import re
@@ -15,10 +14,6 @@ times = 0
 class Coupon(Account):
     def __init__(self, username, pwd, rk_um, rk_pw):
         Account.__init__(self, username, pwd, rk_um, rk_pw)
-        if os.path.isdir('C:\Temp'):
-            pass
-        else:
-            os.mkdir('C:\Temp')
 
     def new_coupon(self, url_coupon, timex, endtime):
         url_filter = 'http://coupon.m.jd.com/coupons/show.action?key=' + re.findall('key=(.*?)&', url_coupon, re.S)[
