@@ -1,8 +1,7 @@
 #encoding=utf-8
 from JDPackage import *
 
-browser(cookies='')
-
+browser('url',cookies='')
 #目前仅支持Firefox 47.0以下的版本!请先安装一个Firefox
 
 #此功能为高级功能,目前稳定性暂时比较差,如失败请重试

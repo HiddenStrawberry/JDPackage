@@ -1,27 +1,19 @@
-# encoding=utf-8
-from __future__ import print_function
+# encoding=utf8
 import csv
 import platform
 from email.mime.text import MIMEText
 import smtplib
 
-
 version = int(platform.python_version()[0])
 
 
 def loadCSVfile(file_name):
-    t = []
     try:
-        csv_file = open(file_name, "r")
-        read = csv.reader(csv_file)
-        for each in read:
-            t.append(each)
-        return t
+        csv_reader = csv.reader(open(file_name))
     except:
-        print('CSV Reader B')
-        csv_file = open(file_name, "r", encoding='utf-8')
-        read = csv.reader(csv_file)
-        return read
+        raise Exception('请确认Cookies.csv文件存在！如不存在请复制JDPackage中的Cookies.csv到程序文件目录中！')
+    return csv_reader
+
 
 
 def writeCSVfile(filename, data):
@@ -33,8 +25,7 @@ def writeCSVfile(filename, data):
     if version == 2:
         csvfile = file(filename, 'wb')
         writer = csv.writer(csvfile)
-        for each in data:
-            writer.writerow(each)
+        writer.writerows(data)
         csvfile.close()
     print('Write to ' + str(filename) + ' Complete!')
 
@@ -57,7 +48,7 @@ def spider_file_csv(lc_dict, filename):
         print(Err)
 
 
-def emailto(destination, text, subject,SMTPserver,sender,password):
+def emailto(destination, text, subject, SMTPserver, sender, password):
     try:
         msg = MIMEText(text)
         msg['Subject'] = subject
@@ -70,3 +61,12 @@ def emailto(destination, text, subject,SMTPserver,sender,password):
         print ('Send to ' + destination + ' Complete!')
     except Exception as err:
         print (err)
+
+def save_img(imgLocate, ir):
+    try:
+        fp = open(imgLocate, 'wb')
+        fp.write(ir.content)
+        fp.close()
+        return True
+    except Exception as Err:
+        print (Err)

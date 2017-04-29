@@ -18,3 +18,4 @@ filter_iplist('ip.csv', 'new.csv', 2) #此处参数参见文档,无特殊需求�
 
 add_lottery(1, '4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f', '2017-03-08 20:57:30', 5, loadCSVfile('new.csv'))  
 add_lottery(2, '4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f', '2017-03-08 20:57:30', 5, loadCSVfile('new.csv')) 
+#           userid, 抽奖码,                                      开始时间,              两账号抽奖延迟

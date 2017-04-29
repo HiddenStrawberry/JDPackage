@@ -1,18 +1,24 @@
 # encoding=utf-8
-from __future__ import print_function
 from .rk import *
+from .mlogin import *
 from .datacontrol import *
 import time
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import re
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+dcap = dict(DesiredCapabilities.PHANTOMJS)
+dcap["phantomjs.page.settings.userAgent"] = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0 "
+)
 
 class Account:
     def __init__(self, username, pwd, rk_um, rk_pw):
         self.username = username
         self.pwd = pwd
         self.rc = RClient(rk_um, rk_pw)
+        self.rk_um = rk_um
+        self.rk_pw = rk_pw
         self.ck = ''
         self.ck_pc = ''
         self.ck_browser = ''
@@ -20,68 +26,74 @@ class Account:
         self.session = requests.session()
 
     def login(self):
-        driver = webdriver.PhantomJS()
-        url = "https://plogin.m.jd.com/user/login.action?appid=100&kpkey=&returnurl=http%3A%2F%2Fm.jd.com%3Findexloc" \
-              "%3D1%26sid%3D9129920d9c239d7273eed31ddcc2a0ab "
-        driver.get(url)
-        try:
-            while decoder('京东登录') in driver.title:
-                print(decoder('尝试登录中……'))
-                driver.get(url)
-                driver.find_element_by_id("username").send_keys(self.username)
-                driver.find_element_by_id("password").send_keys(self.pwd)
-                while decoder('专业网上购物平台品质保障') not in driver.title:
-                    codex = rk_webdriver_verify(driver, self.rc, '//*[@id="imgCode"]')
-                    driver.find_element_by_xpath('//*[@id="code"]').send_keys(codex)
-                    print(codex)
-                    driver.find_element_by_xpath('//*[@id="loginBtn"]').send_keys(Keys.ENTER)
-                    time.sleep(5)
-                    if decoder('账号或密码不正确') in driver.page_source:
-                        driver.quit()
-                        raise Exception('账号或密码不正确')
-            while self.ck == '':
-                if decoder('专业网上购物平台品质保障') in driver.title:
-                    cookie = [item["name"] + "=" + item["value"] for item in driver.get_cookies()]
-                    self.ck = ';'.join(item for item in cookie)
-                    self.ck_browser = set_cookies(driver.get_cookies())
-                    driver.quit()
-                    print(self.username, decoder('M端登录成功'))
-        except:
-            self.login()
+        # 2017/04/27 JDMLogin Cracked
+        print self.username,
+        st=True
+        while st==True:
+            try:
+                ck = login(self.username, self.pwd, self.rk_um, self.rk_pw)
+                driver = webdriver.PhantomJS()
+                driver.get('https://m.jd.com')
+                cookie=';'.join(item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
+                driver.quit()
+                user_flag=re.findall("USER_FLAG_CHECK=(.*?);",cookie,re.S)[0]
+                sid=re.findall("sid=(.*?);",cookie,re.S)[0]
+                self.ck = ck+';'+'USER_FLAG_CHECK='+user_flag+';'+'sid='+sid
+                st=False
+            except Exception as Err:
+                print Err
+                print decoder('出错重试中……')
+
 
     def login_pc(self):
+        # 2017/04/27 JDLogin HTML Version Updated
+        rdname = str(random.randint(1000000, 10000000))
+        t = requests.session()
+        cookiestr = ''
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/54.0.2840.59 Safari/537.36 115Browser/8.0.0',
+            'Accept': 'application / json'
+        }
+        html = t.get('http://passport.jd.com/new/login.aspx?ReturnUrl=https%3A%2F%2Fwww.jd.com%2F',
+                     headers=headers,verify=False).text
+        if 'JD_Verification' in html:
+            url = 'http://' + re.findall('src2="//(.*?)"', html, re.S)[0].replace('amp;', '')
+            ir = t.get(url, headers=headers)
+            save_img('C:\\temp\\' + rdname + '.png', ir)
+            authcode = fuck_code_rk(self.rk_um, self.rk_pw, 'C:\\temp\\' + rdname + '.png')
+        else:
+            authcode = ''
+        pubkey = re.findall('id="pubKey" value="(.*?)"', html, re.S)[0]
         driver = webdriver.PhantomJS()
-        url = "https://passport.jd.com/uc/login?ltype=logout"
-        driver.get(url)
-        try:
-            while decoder('欢迎登录') in driver.title:
-                print(decoder('尝试登录中……'))
-                driver.get(url)
-                driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/div[2]/a').click()
-                driver.find_element_by_id("loginname").send_keys(self.username)
-                driver.find_element_by_id("nloginpwd").send_keys(self.pwd)
-                driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
-                time.sleep(5)
-                while decoder('京东(JD.COM)') not in driver.title:
-                    errmsg = ['账户名与密码不匹配', '账户名与密码不匹配', '安全原因', '账户名不存在']
-                    for each in errmsg:
-                        if decoder(each) in driver.page_source:
-                            driver.quit()
-                            raise Exception(each)
-                    if 'JD_Verification' in driver.page_source:
-                        codex = rk_webdriver_verify(driver, self.rc, '//*[@id="JD_Verification1"]')
-                        driver.find_element_by_id("authcode").send_keys(codex)
-                        driver.find_element_by_id("loginsubmit").send_keys(Keys.ENTER)
-                        time.sleep(5)
-            while self.ck_pc == '':
-                if decoder('京东(JD.COM)') in driver.title:
-                    self.ck_pc = ';'.join(
-                        item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
-                    self.ck_pc_browser = set_cookies(driver.get_cookies())
-                    driver.quit()
-                    print(self.username, decoder('PC端登陆成功'))
-        except:
-            self.login_pc()
+        driver.get(
+            'file:///' + os.getcwd().replace("\\", "/") + '/JDEncrypt.html?key=' + pubkey + '&password=' + self.pwd)
+        pwd = re.findall('<body>(.*?)</body>', driver.page_source, re.S)[0]
+        driver.quit()
+        data = {'uuid': re.findall('name="uuid" value="(.*?)"', html, re.S)[0],
+                '_t': re.findall('id="token" value="(.*?)"', html, re.S)[0],
+                'loginType': 'f',
+                'loginname': self.username,
+                'nloginpwd': self.pwd,
+                'chkRememberMe': '',
+                'authcode': authcode,
+                'pubKey': pubkey,
+                'sa_token': re.findall('name="sa_token" value="(.*?)"', html, re.S)[0],
+                'seqSid': '9'
+                }
+        post_data = t.post(
+            "http://passport.jd.com/uc/loginService?uuid=fc99d6ca-c7cf-4ed8-9661-e69edb96910d&ReturnUrl=https%3A"
+            "%2F%2Fwww.jd.com%2F&r=0.20693104020182984&version=2015",
+            data=data, headers=headers,verify=False).text
+        if 'success' in post_data:
+            print self.username,decoder('PC端登陆成功！')
+        else:
+            print post_data
+            raise Exception('Login Failed！')
+        for k, value in t.cookies.items():
+            cookiestr = cookiestr + k + '=' + value + ';'
+        self.ck_pc=cookiestr[:-1]
+        return self.ck_pc
 
     def get_payment(self):
         payment_list = []
@@ -89,25 +101,27 @@ class Account:
         html = self.session.get('http://order.jd.com/center/list.action', headers=headers, verify=False).text
         payment = re.findall('<span class="number">(.*?)<div class="operate">', html, re.S)
         for each in payment:
-            print('===================================')
-            add = re.findall('<div class="pc">(.*?)</div>', each, re.S)[0]
-            sku = re.findall('data-sku="(.*?)"', each, re.S)[0]
-            itemname = re.findall('<title>(.*?)</title>',
-                                  self.session.get('http://item.jd.com/' + str(sku) + '.html').text, re.S)[0]
+            try:
+                print('===================================')
+                add = re.findall('<div class="pc">(.*?)</div>', each, re.S)[0]
+                sku = re.findall('data-sku="(.*?)"', each, re.S)[0]
+                itemname = re.findall('<title>(.*?)</title>',
+                                      self.session.get('http://item.jd.com/' + str(sku) + '.html').text, re.S)[0]
 
-            orderid = re.findall('id="track(.*?)"', each, re.S)[0]
-            name = re.findall('<strong>(.*?)</strong>', add, re.S)[0]
-            address = re.findall('<p>(.*?)</p>', add, re.S)[0]
-            phone = re.findall('<p>(.*?)</p>', add, re.S)[1]
-            print(itemname)
-            print(orderid, name, address, phone)
-            print('===================================')
-            payment_list.append({'orderID': orderid,
-                                 'name': name,
-                                 'address': address,
-                                 'phone': phone,
-                                 'item': itemname,
-                                 'sku': sku})
+                orderid = re.findall('id="track(.*?)"', each, re.S)[0]
+                name = re.findall('<strong>(.*?)</strong>', add, re.S)[0]
+                address = re.findall('<p>(.*?)</p>', add, re.S)[0]
+                phone = re.findall('<p>(.*?)</p>', add, re.S)[1]
+                print itemname
+                print orderid, name, address, phone
+                print('===================================')
+                payment_list.append({'orderID': orderid,
+                                     'name': name,
+                                     'address': address,
+                                     'phone': phone,
+                                     'item': itemname,
+                                     'sku': sku})
+            except:pass
         return payment_list
 
     def get_msglist(self):
@@ -118,7 +132,7 @@ class Account:
                                            verify=False).text, re.S)
         for each in html:
             everycoupon = re.findall('<div>(.*?)</div>', each, re.S)[0]
-            print(everycoupon)
+            print everycoupon
             msglist.append(everycoupon)
         return msglist
 
@@ -146,7 +160,7 @@ class Account:
                                    'climit': climit,
                                    'price': price,
                                    'price_limit': price_limit})
-                print(couponnum, label, limit, climit, decoder('满'), price_limit, decoder('元可用'), price)
+                print couponnum, label, limit, climit, decoder('满'), price_limit, decoder('元可用'), price
         return couponlist
 
     def write_cookies(self, userid):
@@ -159,14 +173,12 @@ class Account:
             data.append([str(userid), self.ck_pc, self.username, self.pwd, self.ck_pc_browser])
             writeCSVfile('cookies.csv', data)
 
-    def browser(self, cookies=None):
+    def browser(self,url,cookies=None):
         try:
-            cookies = '{\'' + (cookies.replace('=', '\':\'')).replace(';', '\',\'') + '\'}'
-            cookies = eval(str(cookies))
             driver = webdriver.PhantomJS()
-            driver.get('http://www.jd.com')
+            driver.get(url)
             driver.delete_all_cookies()
-            time.sleep(5)
+            time.sleep(2)
             for k, value in cookies.items():
                 driver.add_cookie(
                     {'domain': '.jd.com',
@@ -183,7 +195,8 @@ class Account:
             html = requests.get('https://club.jd.com/myJdcomments/myJdcomment.action',
                                 headers={'Cookie': self.ck_pc}, verify=False).text
             if decoder('没有要评价的订单') in html:
-                raise Exception('没有要评价的订单')
+                print decoder('没有要评价的订单')
+                raise Exception('Error!')
             tbody = re.findall('<tbody>(.*?)</tbody>', html, re.S)
             print(decoder('浏览器加载中，请稍候……'))
             driver = self.browser(cookies=self.ck_pc)
@@ -201,7 +214,7 @@ class Account:
                                  'saveStatus': '1',
                                  'anonymousFlag': '1',
                                  'content': '%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7'}
-                        print(requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
+                        result=requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
                                             data=_data,
                                             headers={'Cookie': self.ck_pc,
                                                      'Referer': 'https://club.jd.com/myJdcomments/orderVoucher.action'
@@ -213,7 +226,12 @@ class Account:
                                                      'Accept-Language': 'zh-CN,zh;q=0.8',
                                                      'Accept-Encoding': 'gzip, deflate, br',
                                                      'X-Requested-With': 'XMLHttpRequest'},
-                                            verify=False).text)
+                                            verify=False).text
+                        if '"resultCode":"2"' in result:
+                            print decoder('服务评价中……')
+                        else:
+                            print 'result'
+
                     driver.get(
                         'http://club.jd.com/myJdcomments/orderVoucher.action?ruleid=' + orderid + '&operation=survey')
                     time.sleep(2)
@@ -243,42 +261,35 @@ def lottery_login(a, b, c, d, userid):
     a.write_cookies(userid)
 
 
-def browser(cookies=None, cookie_dictionary=None):
-    try:
-        if cookies:
-            cookies = '{\'' + (cookies.replace('=', '\':\'')).replace(';', '\',\'') + '\'}'
-            cookies = eval(str(cookies))
-            driver = webdriver.Firefox()
-            driver.get('http://www.jd.com')
-            driver.delete_all_cookies()
-            time.sleep(5)
-            for k, value in cookies.items():
-                driver.add_cookie(
-                    {'domain': '.jd.com',
-                     'name': k,
-                     'value': value,
-                     'path': '/', 'expires': None})
-            driver.get('http://www.jd.com')
-        if cookie_dictionary:
-            driver = webdriver.Firefox()
-            driver.get('http://www.jd.com')
-            driver.delete_all_cookies()
-            time.sleep(5)
-            for item in cookie_dictionary:
-                driver.add_cookie(
-                    {'domain': '.jd.com',  # 注意baidu.com前的英文句号！
-                     'name': item['name'],
-                     'value': item['value'],
-                     'path': '/', 'expires': None})
-            driver.get('http://www.jd.com')
-    except:
-        print(decoder('载入Cookies出错！由于本功能尚处试验阶段，较不稳定，请重新运行！请确定您已经安装了Firefox 47.0以下的版本！'))
-    return driver
+def browser(url, cookies=None, cookie_dictionary=None):
+    # try:
+    if cookies:
+        cookies = cookies.replace('==', '%%')
+        cookies = '{\'' + (cookies.replace('=', '\':\'')).replace(';', '\',\'') + '\'}'
+        cookies = cookies.replace('%%', '==')
+        cookies = eval(str(cookies))
+        driver = webdriver.Firefox()
+        driver.get(url)
+        driver.delete_all_cookies()
+        time.sleep(5)
+        for k, value in cookies.items():
+            driver.add_cookie(
+                {'domain': '.jd.com',
+                 'name': k,
+                 'value': value,
+                 'path': '/', 'expires': None})
+        driver.get(url)
+    if cookie_dictionary:
+        driver = webdriver.Firefox()
+        driver.get(url)
+        driver.delete_all_cookies()
+        time.sleep(5)
+        for item in cookie_dictionary:
+            driver.add_cookie(
+                {'domain': '.jd.com',
+                 'name': item['name'],
+                 'value': item['value'],
+                 'path': '/', 'expires': None})
+        driver.get(url)
 
 
-if __name__ == '__main__':
-    a = Account('#', '#', '#', '#')
-    a.login_pc()
-    a.get_couponlist()  # 获取优惠券列表
-    a.get_msglist()  # 获取消息列表
-    a.get_payment()  # 获取订单列表

@@ -1,4 +1,4 @@
-﻿京东全能工具包 JDPackage V2
+﻿﻿京东全能工具包 JDPackage V2
 ===================
 
 特性：
@@ -21,28 +21,32 @@
  
 
 > 支持代理IP的定时抽奖工具
-kuaidaili.com免费代理IP获取+过滤有效IP工具
-Lotterycode测水工具
+> kuaidaili.com免费代理IP获取+过滤有效IP工具
+> Lotterycode测水工具
 
  3.account.py #京东账户信息管理工具包
  
 
 > 浏览器Cookies载入（只要有一段Cookie，就可以在Firefox实现直接登录而无需账号/密码，可以跳过手机验证及风险验证）
-电脑端及M端登录函数
-获取优惠券列表
-获取消息列表
-获取订单列表
+> 电脑端及M端登录
+> 获取优惠券列表
+> 获取消息列表
+> 获取订单列表
 
  4.datacontrol.py #文件及数据库处理
 > Python2/3兼容性处理
-CSV文件读写
+> CSV文件读写
 
  5.rk.py #若快打码组件
+ 
  6.coupon.py # 京东优惠券工具包
  > M端/电脑端优惠券领取
- 获取a.jd.com领卷中心的任意页面的任意优惠券领取地址
- 领取a.jd.com领卷中心任意优惠券
+ > 获取a.jd.com领卷中心的任意页面的任意优惠券领取地址
+ > 领取a.jd.com领卷中心任意优惠券
 
+7.mlogin.py #京东M端登陆模拟执行
+
+8.JDEncrypt.html #京东PC端登陆模拟执行
 所有功能都有对应的极为详尽的由作者煞费苦心写的文档及具体的使用例子，可以到docs目录中查看各个文件的文档，新手请参阅[新手教程][1]。
 ---------------------------------------------------------------------------------
 使用方法：
@@ -64,4 +68,4 @@ CSV文件读写
 ---------------
 
 
-  [1]: https://github.com/HiddenStrawberry/JDPackage/blob/master/%E6%96%B0%E6%89%8B%E6%95%99%E7%A8%8B.md
+  [1]: https://github.com/HiddenStrawberry/JDPackage/wiki/%E6%96%B0%E6%89%8B%E6%95%99%E7%A8%8B

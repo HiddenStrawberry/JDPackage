@@ -1,5 +1,5 @@
-#encoding=utf8
-from .datacontrol import *
+# encoding=utf-8
+from __future__ import print_function
 import requests
 import time
 import re
@@ -7,11 +7,8 @@ import datetime
 import threading
 from selenium import webdriver
 import warnings
-import sys
-stdi, stdo, stde = sys.stdin, sys.stdout, sys.stderr
-reload(sys)
-sys.setdefaultencoding('utf-8', )
-sys.stdin, sys.stdout, sys.stderr = stdi, stdo, stde
+from .datacontrol import *
+
 warnings.filterwarnings("ignore")
 
 
@@ -56,7 +53,7 @@ def lottery_time(userid, code, timet, delay, proxylist=None):
                                 'http://l.activity.jd.com/lottery/lottery_start.action?lotteryCode=' + code,
                                 headers=headers, proxies=proxies[0], verify=False).text
                             if decoder('登录') in goprince:
-                                print(decoder('ID为') ,userid,decoder('的Cookies过期！'), each)
+                                print(decoder('ID为') + userid + decoder('的Cookies过期！'), each)
                                 ck = 0
                             status = 1
                         except:
@@ -66,7 +63,7 @@ def lottery_time(userid, code, timet, delay, proxylist=None):
                     goprince = requests.get('http://l.activity.jd.com/lottery/lottery_start.action?lotteryCode=' + code,
                                             headers=headers, verify=False).text
                     if decoder('登录') in goprince:
-                        print(decoder('ID为') , userid , decoder('的Cookies过期！'), each)
+                        print(decoder('ID为') + userid + decoder('的Cookies过期！'), each)
                         ck = 0
                 winner = re.findall('"winner":(.*?)}', goprince, re.S)
                 if str(winner) == '[u\'true\']':
@@ -83,12 +80,11 @@ def lottery_time(userid, code, timet, delay, proxylist=None):
                 # ----------------------------
                 time.sleep(delay)
             enabled = 0
-            # Fix later
-            # f = open('f.txt', 'a')
-            # for each in msglist:
-            #     f.write(decoder(each))
-            #     f.write('\n')
-            # f.close()
+            f = open('f.txt', 'a')
+            for each in msglist:
+                f.write(decoder(each))
+                f.write('\n')
+            f.close()
             print('Finished!')
 
 
@@ -98,31 +94,6 @@ def add_lottery(userid, code, timet, delay, proxylist=None):
     threading.Thread(target=lottery_time, args=(userid, code, timet, delay, proxylist)).start()
     print(code)
     time.sleep(0.1)
-
-
-def yuyue(userid, url):
-    cookiedt=[]
-    try:
-        cookielist = loadCSVfile('cookies.csv')
-    except:
-        raise Exception('请确认Cookies文件存在!')
-    for each in cookielist:
-        try:
-            if str(each[0]) == str(userid):
-                cookiedt.append(each[1])
-        except:
-            pass
-    for each in cookiedt:
-        headers = {'Cookie': each,'Referer':url}
-        html = requests.get(url,headers=headers,verify=False).text
-        result = ''
-        try:
-            result = re.findall('<p class="bd-right-result">(.*?)</p>', html, re.S)[0]
-            result=result.replace('<i>','').replace('</i>','')
-        except Exception as err:
-            print (err)
-            pass
-        print(result)
 
 
 def read_lotteryfile(dictfile):
@@ -148,7 +119,7 @@ def read_lotteryfile(dictfile):
             if yushou:
                 print(decoder('********************该抽奖可能需要预约********************'))
             print('code:', k)
-            print('URL:'),
+            print('URL:', end=' ')
             print(value)
             print('Prize:')
             for eachprize in range(len(prize)):
@@ -172,7 +143,7 @@ def get_iplist(filename, page, sort):
     data = []
     driver = webdriver.PhantomJS()
     for r in range(1, page + 1):
-        print 'Page',
+        print('Page', )
         print(r)
         driver.get('http://www.kuaidaili.com/free/' + str(sort) + '/' + str(r))
         tr = []
@@ -189,8 +160,8 @@ def get_iplist(filename, page, sort):
                 speed = re.findall('<td data-title="' + decoder('响应速度') + '">(.*?)</td>', each, re.S)[0]
                 last = re.findall('<td data-title="' + decoder('最后验证时间') + '">(.*?)</td>', each, re.S)[0]
 
-                print ip, port, tp, loc, speed, last
-                data.append((ip, port, tp, loc, speed, last))
+                print(ip, port, tp, loc, speed, last)
+                data.append([ip, port, tp, loc, speed, last])
             except Exception as err:
                 print(err)
     driver.quit()
@@ -204,9 +175,23 @@ def filter_iplist(filename, newfilename, timeout):
         try:
             proxies = [{'http': 'http://' + str(each[0]) + ':' + str(each[1])}]
             requests.get('http://www.jd.com', proxies=proxies[0], timeout=timeout, verify=False)
-            print 'Success', each[0], ':', each[1]
+            print('Success', each[0], ':', each[1])
             successlist.append([each[0], each[1], each[2], each[3], each[4], each[5]])
         except:
-            print 'Failed', each[0], ':', each[1]
+            print('Failed', each[0], ':', each[1])
     writeCSVfile(newfilename, successlist)
 
+
+if __name__ == "__main__":
+    read_lotteryfile('code.txt')
+    # testwater('d2ea2994-7b3b-46e8-9042-3aa7aa7b5fc3')
+    '''
+    get_iplist('ip.csv', 3, 'inha')  # 参数为（文件名，页数，代理类别）；代理类别包含4种(inha:国内高匿,intr:国内普通,outha:国外高匿,outtr:国外普通
+    filter_iplist('ip.csv', 'new.csv', 2)  # 过滤出有效IP并存储为new.csv 参数为（文件名，过滤后的文件名，超时判定秒数）
+    cookielist = loadCSVfile('cookies.csv')  # 加载Cookies文件
+    proxylist = loadCSVfile('new.csv')  # 加载代理地址文件
+    add_lottery('1', '4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f', '2017-03-08 20:57:30', 5, cookielist, proxylist)  # 代理模式
+    #add_lottery('1','4b6c385f-a626-48d2-8abe-f2ce2ebe5d5f','2017-03-08 20:57:30',5,cookielist) #无代理模式
+    '''
+    # cookielist = loadCSVfile('cookies.csv')
+    # add_lottery('1', 'b061839a-fa56-48a2-98aa-718700110405', '2017-04-10 10:44:30', 5, cookielist, proxylist=[])

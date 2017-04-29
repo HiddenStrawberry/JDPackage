@@ -3,11 +3,10 @@ from JDPackage import *
 #DOCS : https://github.com/HiddenStrawberry/JDPackage/blob/master/docs/spider.md
 
 #运行爬虫
-t=Spider(20) #新建一个JDLottery爬虫，线程数为20
+t=Spider(100) #新建一个JDLottery爬虫，线程数为20
 
 # -- 加载地址到爬虫中 --
 rows = loadCSVfile('3.csv')
-
 for each in rows:
     t._pool.append(each[0]) # _pool为需要爬取的地址池
 

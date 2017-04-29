@@ -1,13 +1,22 @@
 # encoding=utf-8
-from __future__ import print_function
 from PIL import ImageTk
 import random
 import requests
 import hashlib
 import os
+from datacontrol import *
 
-from JDPackage import decoder
 
+def fuck_code_rk(rk_um, rk_pwd, imgLocate):
+    try:
+        rc = RClient(rk_um, rk_pwd)
+        im = open(imgLocate, 'rb').read()
+        t=rc.rk_create(im, 3040)['Result']
+        print (t)
+        return (t)
+    except Exception as err:
+        print (err)
+        raise Exception('Ruokuai Error!')
 
 class RClient(object):
     def __init__(self, username, password):
@@ -75,7 +84,7 @@ def rk_webdriver_verify(driver,rc,xpath_text):
         frame4 = ImageTk.Image.open('C:\\temp\\' + rdname + '.jpg').crop(rangle)
         frame4.save('C:\\temp\\' + rdname + '.png')
         im = open('C:\\temp\\' + rdname + '.png', 'rb').read()
-        print(decoder('开始识别验证码'), end='')
+        print(decoder('开始识别验证码')),
     except:
         raise Exception("请确认您安装了正确的Pillow包!")
     try:
