@@ -61,7 +61,7 @@ class Coupon(Account):
         enabled = 0
 
         while datetime.datetime.now() <= endtime:
-            while datetime.datetime.now>=start:
+            while datetime.datetime.now()>=start:
                 self.coupon(url)
             time.sleep(0.1)
         print('Times Up!Process End.')
