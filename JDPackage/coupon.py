@@ -59,12 +59,12 @@ class Coupon(Account):
     def get_coupon_a(self, url, start, endtime):
         global times
         enabled = 0
-        while enabled == 0:
-            time.sleep(0.1)
-            while start <= datetime.datetime.now() <= endtime:
+
+        while datetime.datetime.now() <= endtime:
+            while datetime.datetime.now>=start:
                 self.coupon(url)
-            enabled = 1
-            print('Times Up!Process End.')
+            time.sleep(0.1)
+        print('Times Up!Process End.')
 
     def ajd_coupon(self, url, starttime):
         headers = {'Cookie': self.ck_pc,
