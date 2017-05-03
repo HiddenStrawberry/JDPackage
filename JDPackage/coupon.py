@@ -6,6 +6,7 @@ import random
 import threading
 import warnings
 import re
+
 warnings.filterwarnings("ignore")
 times = 0
 
@@ -20,7 +21,6 @@ class Coupon(Account):
         start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
         end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
         threading.Thread(target=self.get_coupon_a, args=(url_filter, start, end,)).start()
-
 
     def coupon(self, url):
         global times
@@ -61,9 +61,10 @@ class Coupon(Account):
         enabled = 0
 
         while datetime.datetime.now() <= endtime:
-            while datetime.datetime.now()>=start:
+            while endtime >= datetime.datetime.now() >= start:
                 self.coupon(url)
             time.sleep(0.1)
+
         print('Times Up!Process End.')
 
     def ajd_coupon(self, url, starttime):
@@ -121,13 +122,9 @@ def get_ajd_list(url):
 
 def multi_couponA(a, b, c, d, count, start, end, url):
     t = {}
-    for x in range(1,count+1):
-        print decoder('开始登陆第'+str(x)+'个账号')
+    for x in range(1, count + 1):
+        print decoder('开始登陆第' + str(x) + '个账号')
         t[x] = Coupon(a, b, c, d)
         t[x].login()
         print decoder('第' + str(x) + '线程登陆成功')
-        t[x].coupon_modeA(url,start,end)
-
-
-
-
+        t[x].coupon_modeA(url, start, end)
