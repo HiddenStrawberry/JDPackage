@@ -8,11 +8,15 @@ version = int(platform.python_version()[0])
 
 
 def loadCSVfile(file_name):
-    try:
-        csv_reader = csv.reader(open(file_name))
-    except:
-        raise Exception('请确认Cookies.csv文件存在！如不存在请复制JDPackage中的Cookies.csv到程序文件目录中！')
-    return csv_reader
+    if version == 3:
+        csv_reader=csv.reader(open(file_name,'r',encoding='utf8'))
+        return csv_reader
+    else:
+        try:
+            csv_reader = csv.reader(open(file_name))
+        except:
+            raise Exception('请确认Cookies.csv文件存在！如不存在请复制JDPackage中的Cookies.csv到程序文件目录中！')
+        return csv_reader
 
 
 

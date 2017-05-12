@@ -6,7 +6,7 @@ from JDPackage import *
 
 
 
-multi_couponA('#', '#', '#', '#', 1,  #京东账号,京东密码,若快账号,若快密码,线程数
+multi_couponA('#', '#', '#', '#', 1,0.1,  #京东账号,京东密码,若快账号,若快密码,线程数,延时
 			  '2017-04-28 23:59:30', #开始时间
 			  '2017-04-30 00:00:30', #结束时间
               'http://coupon.m.jd.com/coupons/show.action?key=88dfb7d340614fd690296ac8634d12e9&roleId=6244957&to=chongzhi.m.jd.com/&cu=true&utm_source=www.zuanke8.com&utm_medium=tuiguang&utm_campaign=t_1000000936_571233&utm_term=ef10cc211a3a4129851e1251b092cbb4&abt=3'

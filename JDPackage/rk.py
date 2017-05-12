@@ -4,7 +4,7 @@ import random
 import requests
 import hashlib
 import os
-from datacontrol import *
+from .datacontrol import *
 
 
 def fuck_code_rk(rk_um, rk_pwd, imgLocate):

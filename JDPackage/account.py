@@ -1,4 +1,5 @@
 # encoding=utf-8
+from __future__ import print_function
 from .rk import *
 from .mlogin import *
 from .datacontrol import *
@@ -11,6 +12,7 @@ dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.userAgent"] = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0 "
 )
+
 
 class Account:
     def __init__(self, username, pwd, rk_um, rk_pw):
@@ -27,22 +29,11 @@ class Account:
 
     def login(self):
         # 2017/04/27 JDMLogin Cracked
-        print self.username,
-        st=True
-        while st==True:
-            try:
-                ck = login(self.username, self.pwd, self.rk_um, self.rk_pw)
-                driver = webdriver.PhantomJS()
-                driver.get('https://m.jd.com')
-                cookie=';'.join(item for item in [item["name"] + "=" + item["value"] for item in driver.get_cookies()])
-                driver.quit()
-                user_flag=re.findall("USER_FLAG_CHECK=(.*?);",cookie,re.S)[0]
-                sid=re.findall("sid=(.*?);",cookie,re.S)[0]
-                self.ck = ck+';'+'USER_FLAG_CHECK='+user_flag+';'+'sid='+sid
-                st=False
-            except Exception as Err:
-                print Err
-                print decoder('出错重试中……')
+        print(self.username, end=' ')
+        st = True
+        while st == True:
+            self.ck = login(self.username, self.pwd, self.rk_um, self.rk_pw)
+            st = False
 
 
     def login_pc(self):
@@ -56,7 +47,7 @@ class Account:
             'Accept': 'application / json'
         }
         html = t.get('http://passport.jd.com/new/login.aspx?ReturnUrl=https%3A%2F%2Fwww.jd.com%2F',
-                     headers=headers,verify=False).text
+                     headers=headers, verify=False).text
         if 'JD_Verification' in html:
             url = 'http://' + re.findall('src2="//(.*?)"', html, re.S)[0].replace('amp;', '')
             ir = t.get(url, headers=headers)
@@ -84,15 +75,15 @@ class Account:
         post_data = t.post(
             "http://passport.jd.com/uc/loginService?uuid=fc99d6ca-c7cf-4ed8-9661-e69edb96910d&ReturnUrl=https%3A"
             "%2F%2Fwww.jd.com%2F&r=0.20693104020182984&version=2015",
-            data=data, headers=headers,verify=False).text
+            data=data, headers=headers, verify=False).text
         if 'success' in post_data:
-            print self.username,decoder('PC端登陆成功！')
+            print(self.username, decoder('PC端登陆成功！'))
         else:
-            print post_data
+            print(post_data)
             raise Exception('Login Failed！')
         for k, value in t.cookies.items():
             cookiestr = cookiestr + k + '=' + value + ';'
-        self.ck_pc=cookiestr[:-1]
+        self.ck_pc = cookiestr[:-1]
         return self.ck_pc
 
     def get_payment(self):
@@ -112,8 +103,8 @@ class Account:
                 name = re.findall('<strong>(.*?)</strong>', add, re.S)[0]
                 address = re.findall('<p>(.*?)</p>', add, re.S)[0]
                 phone = re.findall('<p>(.*?)</p>', add, re.S)[1]
-                print itemname
-                print orderid, name, address, phone
+                print(itemname)
+                print(orderid, name, address, phone)
                 print('===================================')
                 payment_list.append({'orderID': orderid,
                                      'name': name,
@@ -121,7 +112,8 @@ class Account:
                                      'phone': phone,
                                      'item': itemname,
                                      'sku': sku})
-            except:pass
+            except:
+                pass
         return payment_list
 
     def get_msglist(self):
@@ -132,7 +124,7 @@ class Account:
                                            verify=False).text, re.S)
         for each in html:
             everycoupon = re.findall('<div>(.*?)</div>', each, re.S)[0]
-            print everycoupon
+            print(everycoupon)
             msglist.append(everycoupon)
         return msglist
 
@@ -160,7 +152,7 @@ class Account:
                                    'climit': climit,
                                    'price': price,
                                    'price_limit': price_limit})
-                print couponnum, label, limit, climit, decoder('满'), price_limit, decoder('元可用'), price
+                print(couponnum, label, limit, climit, decoder('满'), price_limit, decoder('元可用'), price)
         return couponlist
 
     def write_cookies(self, userid):
@@ -173,8 +165,14 @@ class Account:
             data.append([str(userid), self.ck_pc, self.username, self.pwd, self.ck_pc_browser])
             writeCSVfile('cookies.csv', data)
 
-    def browser(self,url,cookies=None):
+    def browser(self, url, cookies=None):
+
         try:
+            cookies = cookies.replace('==', '%%')
+            cookies = '{\'' + (cookies.replace('=', '\':\'')).replace(';', '\',\'') + '\'}'
+            cookies = cookies.replace('%%', '==')
+            cookies = eval(str(cookies))
+            print(cookies)
             driver = webdriver.PhantomJS()
             driver.get(url)
             driver.delete_all_cookies()
@@ -185,9 +183,9 @@ class Account:
                      'name': k,
                      'value': value,
                      'path': '/', 'expires': None})
-            driver.get('http://www.jd.com')
-        except:
-            print(decoder('载入Cookies出错！由于本功能尚处试验阶段，较不稳定，请重新运行！'))
+            driver.get('http://club.jd.com')
+        except Exception as err:
+            print(err)
         return driver
 
     def comment(self):
@@ -195,11 +193,11 @@ class Account:
             html = requests.get('https://club.jd.com/myJdcomments/myJdcomment.action',
                                 headers={'Cookie': self.ck_pc}, verify=False).text
             if decoder('没有要评价的订单') in html:
-                print decoder('没有要评价的订单')
+                print(decoder('没有要评价的订单'))
                 raise Exception('Error!')
             tbody = re.findall('<tbody>(.*?)</tbody>', html, re.S)
             print(decoder('浏览器加载中，请稍候……'))
-            driver = self.browser(cookies=self.ck_pc)
+            driver = self.browser('http://club.jd.com', cookies=self.ck_pc)
             for each in tbody:
                 try:
                     orderid = re.findall('orderid=(.*?)&', each, re.S)[0]
@@ -214,23 +212,23 @@ class Account:
                                  'saveStatus': '1',
                                  'anonymousFlag': '1',
                                  'content': '%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7%E8%BF%98%E4%B8%8D%E9%94%99%E5%90%A7'}
-                        result=requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
-                                            data=_data,
-                                            headers={'Cookie': self.ck_pc,
-                                                     'Referer': 'https://club.jd.com/myJdcomments/orderVoucher.action'
-                                                                '?ruleid=' + orderid,
-                                                     'Accept': 'application/json, text/javascript, */*; q=0.01',
-                                                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) '
-                                                                   'AppleWebKit/537.36 (KHTML, like Gecko) '
-                                                                   'Chrome/56.0.2924.87 Safari/537.36',
-                                                     'Accept-Language': 'zh-CN,zh;q=0.8',
-                                                     'Accept-Encoding': 'gzip, deflate, br',
-                                                     'X-Requested-With': 'XMLHttpRequest'},
-                                            verify=False).text
+                        result = requests.post('https://club.jd.com/myJdcomments/saveProductComment.action',
+                                               data=_data,
+                                               headers={'Cookie': self.ck_pc,
+                                                        'Referer': 'https://club.jd.com/myJdcomments/orderVoucher.action'
+                                                                   '?ruleid=' + orderid,
+                                                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                                                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) '
+                                                                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                                                      'Chrome/56.0.2924.87 Safari/537.36',
+                                                        'Accept-Language': 'zh-CN,zh;q=0.8',
+                                                        'Accept-Encoding': 'gzip, deflate, br',
+                                                        'X-Requested-With': 'XMLHttpRequest'},
+                                               verify=False).text
                         if '"resultCode":"2"' in result:
-                            print decoder('服务评价中……')
+                            print(decoder('服务评价中……'))
                         else:
-                            print 'result'
+                            print(result)
 
                     driver.get(
                         'http://club.jd.com/myJdcomments/orderVoucher.action?ruleid=' + orderid + '&operation=survey')
@@ -291,5 +289,3 @@ def browser(url, cookies=None, cookie_dictionary=None):
                  'value': item['value'],
                  'path': '/', 'expires': None})
         driver.get(url)
-
-

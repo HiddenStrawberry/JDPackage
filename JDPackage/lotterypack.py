@@ -1,4 +1,5 @@
 #encoding=utf8
+from __future__ import print_function
 from .datacontrol import *
 import requests
 import time
@@ -7,11 +8,6 @@ import datetime
 import threading
 from selenium import webdriver
 import warnings
-import sys
-stdi, stdo, stde = sys.stdin, sys.stdout, sys.stderr
-reload(sys)
-sys.setdefaultencoding('utf-8', )
-sys.stdin, sys.stdout, sys.stderr = stdi, stdo, stde
 warnings.filterwarnings("ignore")
 
 
@@ -172,7 +168,7 @@ def get_iplist(filename, page, sort):
     data = []
     driver = webdriver.PhantomJS()
     for r in range(1, page + 1):
-        print 'Page',
+        print ('Page',end='')
         print(r)
         driver.get('http://www.kuaidaili.com/free/' + str(sort) + '/' + str(r))
         tr = []
@@ -189,8 +185,8 @@ def get_iplist(filename, page, sort):
                 speed = re.findall('<td data-title="' + decoder('响应速度') + '">(.*?)</td>', each, re.S)[0]
                 last = re.findall('<td data-title="' + decoder('最后验证时间') + '">(.*?)</td>', each, re.S)[0]
 
-                print ip, port, tp, loc, speed, last
-                data.append((ip, port, tp, loc, speed, last))
+                print (ip, port, tp,   last)
+                data.append((ip, port, tp,   last))
             except Exception as err:
                 print(err)
     driver.quit()
@@ -204,9 +200,9 @@ def filter_iplist(filename, newfilename, timeout):
         try:
             proxies = [{'http': 'http://' + str(each[0]) + ':' + str(each[1])}]
             requests.get('http://www.jd.com', proxies=proxies[0], timeout=timeout, verify=False)
-            print 'Success', each[0], ':', each[1]
-            successlist.append([each[0], each[1], each[2], each[3], each[4], each[5]])
+            print ('Success', each[0], ':', each[1])
+            successlist.append([each[0], each[1], each[2], each[3]])
         except:
-            print 'Failed', each[0], ':', each[1]
+            print ('Failed', each[0], ':', each[1])
     writeCSVfile(newfilename, successlist)
 

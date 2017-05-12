@@ -1,4 +1,5 @@
 # encoding=utf-8
+from __future__ import print_function
 from .account import *
 from .mlogin import *
 import datetime
@@ -15,12 +16,13 @@ class Coupon(Account):
     def __init__(self, username, pwd, rk_um, rk_pw):
         Account.__init__(self, username, pwd, rk_um, rk_pw)
 
-    def coupon_modeA(self, url_coupon, start, end):
+    def coupon_modeA(self, url_coupon, start, end,delay):
         url_filter = 'http://coupon.m.jd.com/coupons/show.action?key=' + re.findall('key=(.*?)&', url_coupon, re.S)[
             0] + '&roleId=' + re.findall('roleId=(.*?)&', url_coupon, re.S)[0] + '&to=m.jd.com'
+        print (url_filter)
         start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
         end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-        threading.Thread(target=self.get_coupon_a, args=(url_filter, start, end,)).start()
+        threading.Thread(target=self.get_coupon_a, args=(url_filter, start, end,delay,)).start()
 
     def coupon(self, url):
         global times
@@ -52,17 +54,18 @@ class Coupon(Account):
                      'couponType': re.findall('value="(.*?)"', t1, re.S)[4],
                      'to': re.findall('value="(.*?)"', t1, re.S)[5]}
             now = requests.post('http://coupon.m.jd.com/coupons/submit.json', headers=headers, data=datax).text
-            print re.findall('"returnMsg":"(.*?)"', now, re.S)[0],
+            print (re.findall('"returnMsg":"(.*?)"', now, re.S)[0],end='')
             times += 1
             print(times)
 
-    def get_coupon_a(self, url, start, endtime):
+    def get_coupon_a(self, url, start, endtime,delay):
         global times
         enabled = 0
 
         while datetime.datetime.now() <= endtime:
             while endtime >= datetime.datetime.now() >= start:
                 self.coupon(url)
+                time.sleep(delay)
             time.sleep(0.1)
 
         print('Times Up!Process End.')
@@ -97,7 +100,7 @@ def get_ajd_list(url):
         try:
             datakey = re.findall('data-key="(.*?)"', each, re.S)[0]
             url = 'http://a.jd.com/ajax/freeGetCoupon.html?key=' + datakey + '&r=0.7308938041372057'
-            print title, typ, min_price, off_price, 'RMB', url, 'Available:', data_linkurl
+            print (title, typ, min_price, off_price, 'RMB', url, 'Available:', data_linkurl)
             coupon_dict[datakey] = {'title': title,
                                     'min_price': min_price,
                                     'off_price': off_price,
@@ -108,7 +111,7 @@ def get_ajd_list(url):
             data_id = re.findall('data-id="(.*?)"', each, re.S)[0]
             data_bean = re.findall('data-bean="(.*?)"', each, re.S)[0]
             url = 'http://a.jd.com/ajax/beanExchangeCoupon.html?id=' + data_id + '&r=0.5559653794026669'
-            print title, typ, min_price, off_price, 'RMB', url, data_bean, 'JD Bean', 'Available:', data_linkurl
+            print (title, typ, min_price, off_price, 'RMB', url, data_bean, 'JD Bean', 'Available:', data_linkurl)
             coupon_dict[data_id] = {'title': title,
                                     'min_price': min_price,
                                     'off_price': off_price,
@@ -120,11 +123,11 @@ def get_ajd_list(url):
     return coupon_dict
 
 
-def multi_couponA(a, b, c, d, count, start, end, url):
+def multi_couponA(a, b, c, d, count,delay,start, end, url):
     t = {}
     for x in range(1, count + 1):
-        print decoder('开始登陆第' + str(x) + '个账号')
+        print (decoder('开始登陆第' + str(x) + '个账号'))
         t[x] = Coupon(a, b, c, d)
         t[x].login()
-        print decoder('第' + str(x) + '线程登陆成功')
-        t[x].coupon_modeA(url, start, end)
+        print (decoder('第' + str(x) + '线程登陆成功'))
+        t[x].coupon_modeA(url, start, end,delay)
