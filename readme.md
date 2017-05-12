@@ -1,17 +1,19 @@
-﻿﻿京东全能工具包 JDPackage V2
+﻿﻿﻿京东全能工具包 JDPackage V2.3
 ===================
+![python](https://img.shields.io/badge/language-python-orange.svg)
 
+![此处输入图片的描述][1]
 特性：
 ---
 
- 1. 丰富的可扩展性：可以借助本程序二次开发出个性化的程序。
- 2. 同时兼容Python2/3：无需考虑兼容问题。
+ 1. 丰富的可扩展性：丰富的文档帮助你借助本程序二次开发出个性化的程序。
+ 2. 同时兼容Python2/3：无需考虑兼容性问题。
  3. 轻量化：仅依赖3个第三方包（requests，pillow4.0.0，selenium2.53.0）
  4. 全自动：全自动定时抢卷/抽奖功能，并支持多线程，配置有多高，速度就有多快。
  5. 对新手友好：大量的示例，即便不会Python也能快速构建环境。
 目前已经实现的功能：
 ----------
-
+各文件开发文档地址：https://github.com/HiddenStrawberry/JDPackage/wiki
 
  1. Spider.py #京东抽奖LotteryCode爬虫
  
@@ -46,8 +48,9 @@
 
  8. JDEncrypt.html #京东PC端登陆模拟执行
 
-所有功能都有对应的极为详尽的由作者煞费苦心写的文档及具体的使用例子，可以到docs目录中查看各个文件的文档，新手请参阅[新手教程][1]。
----------------------------------------------------------------------------------
+
+所有功能都有对应的极为详尽的由作者煞费苦心写的文档及具体的使用例子，可以到docs目录中查看各个文件的文档，新手请参阅[新手教程][2]。
+
 使用方法：
 
     from JDPackage import *
@@ -67,4 +70,5 @@
 ---------------
 
 
-  [1]: https://github.com/HiddenStrawberry/JDPackage/wiki/%E6%96%B0%E6%89%8B%E6%95%99%E7%A8%8B
+  [1]: https://www.gnu.org/graphics/gplv3-127x51.png
+  [2]: https://github.com/HiddenStrawberry/JDPackage/wiki/%E6%96%B0%E6%89%8B%E6%95%99%E7%A8%8B
