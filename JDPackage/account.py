@@ -56,11 +56,7 @@ class Account:
         else:
             authcode = ''
         pubkey = re.findall('id="pubKey" value="(.*?)"', html, re.S)[0]
-        driver = webdriver.PhantomJS()
-        driver.get(
-            'file:///' + os.getcwd().replace("\\", "/") + '/JDEncrypt.html?key=' + pubkey + '&password=' + self.pwd)
-        pwd = re.findall('<body>(.*?)</body>', driver.page_source, re.S)[0]
-        driver.quit()
+
         data = {'uuid': re.findall('name="uuid" value="(.*?)"', html, re.S)[0],
                 '_t': re.findall('id="token" value="(.*?)"', html, re.S)[0],
                 'loginType': 'f',
