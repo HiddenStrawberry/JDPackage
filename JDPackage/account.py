@@ -56,8 +56,9 @@ class Account:
         else:
             authcode = ''
         pubkey = re.findall('id="pubKey" value="(.*?)"', html, re.S)[0]
-
-        data = {'uuid': re.findall('name="uuid" value="(.*?)"', html, re.S)[0],
+        uuid = re.findall('name="uuid" value="(.*?)"', html, re.S)[0]
+        
+        data = {'uuid': uuid,
                 '_t': re.findall('id="token" value="(.*?)"', html, re.S)[0],
                 'loginType': 'f',
                 'loginname': self.username,
@@ -69,7 +70,7 @@ class Account:
                 'seqSid': '9'
                 }
         post_data = t.post(
-            "http://passport.jd.com/uc/loginService?uuid=fc99d6ca-c7cf-4ed8-9661-e69edb96910d&ReturnUrl=https%3A"
+            "http://passport.jd.com/uc/loginService?uuid=" + uuid + "&ReturnUrl=https%3A"
             "%2F%2Fwww.jd.com%2F&r=0.20693104020182984&version=2015",
             data=data, headers=headers, verify=False).text
         if 'success' in post_data:
