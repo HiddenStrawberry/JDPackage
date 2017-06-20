@@ -34,10 +34,12 @@ class Account:
         while st == True:
             self.ck = login(self.username, self.pwd, self.rk_um, self.rk_pw)
             st = False
+        return self.ck
 
 
     def login_pc(self):
         # 2017/04/27 JDLogin HTML Version Updated
+
         rdname = str(random.randint(1000000, 10000000))
         t = requests.session()
         cookiestr = ''
@@ -46,20 +48,25 @@ class Account:
                           'Chrome/54.0.2840.59 Safari/537.36 115Browser/8.0.0',
             'Accept': 'application / json'
         }
+        headers2={'Accept': 'image/webp,image/*,*/*;q=0.8'}
         html = t.get('http://passport.jd.com/new/login.aspx?ReturnUrl=https%3A%2F%2Fwww.jd.com%2F',
                      headers=headers, verify=False).text
+        uuid = re.findall('name="uuid" value="(.*?)"', html, re.S)[0]
         if 'JD_Verification' in html:
-            url = 'http://' + re.findall('src2="//(.*?)"', html, re.S)[0].replace('amp;', '')
-            ir = t.get(url, headers=headers)
+            yys = time.time() * 1000
+            url = 'http://authcode.jd.com/verify/image?a=1&acid='+uuid+'&uid='+uuid+'&yys='+str(int(yys))
+            print (url)
+            ir = t.get(url, headers=headers2,verify=False)
             save_img('C:\\temp\\' + rdname + '.png', ir)
             authcode = fuck_code_rk(self.rk_um, self.rk_pw, 'C:\\temp\\' + rdname + '.png')
         else:
             authcode = ''
         pubkey = re.findall('id="pubKey" value="(.*?)"', html, re.S)[0]
 
+
         data = {'uuid': re.findall('name="uuid" value="(.*?)"', html, re.S)[0],
                 '_t': re.findall('id="token" value="(.*?)"', html, re.S)[0],
-                'loginType': 'f',
+                'loginType': 'c',
                 'loginname': self.username,
                 'nloginpwd': self.pwd,
                 'chkRememberMe': '',
@@ -68,9 +75,10 @@ class Account:
                 'sa_token': re.findall('name="sa_token" value="(.*?)"', html, re.S)[0],
                 'seqSid': '9'
                 }
+        post_url="https://passport.jd.com/uc/loginService?uuid="+uuid+"&ReturnUrl=https%3A%2F%2Fwww.jd.com%2F&r=0.6866403083063548&version=2015"
+        print (post_url)
         post_data = t.post(
-            "http://passport.jd.com/uc/loginService?uuid=fc99d6ca-c7cf-4ed8-9661-e69edb96910d&ReturnUrl=https%3A"
-            "%2F%2Fwww.jd.com%2F&r=0.20693104020182984&version=2015",
+            post_url,
             data=data, headers=headers, verify=False).text
         if 'success' in post_data:
             print(self.username, decoder('PC端登陆成功！'))
