@@ -1,5 +1,7 @@
 ﻿﻿﻿京东全能工具包 JDPackage V2.3
 ===================
+作者接一切数据&Web&小程序开发外包服务，介绍人提供10%-20%佣金。可签合同、开正规公司发票。
+
 JDPackage即将于2019年推出你没有见过的船新版本！速进QQ群108934299！
 
 ![python](https://img.shields.io/badge/language-python-orange.svg)
